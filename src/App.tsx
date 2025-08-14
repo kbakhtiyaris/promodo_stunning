@@ -89,7 +89,7 @@ function App() {
       breakMinutes: 5,
       soundEnabled: true,
       notificationsEnabled: true,
-      bubbleUrl: 'https://your-app.bubbleapps.io/version-test/task_manager'
+      bubbleUrl: 'https://task-51525.bubbleapps.io/version-test/tasks'
     };
   });
 
