@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FocusFlow - Stunning Pomodoro Timer</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Animated Background -->
+    <div class="animated-bg">
+        <div class="floating-particles"></div>
+        <div class="gradient-orbs">
+            <div class="orb orb-1"></div>
+            <div class="orb orb-2"></div>
+            <div class="orb orb-3"></div>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header class="stunning-header">
+        <div class="container">
+            <div class="header-content">
+                <h1 class="logo-title">
+                    <span class="logo-icon">⚡</span>
+                    FocusFlow
+                </h1>
+                <div class="header-controls">
+                    <button class="glass-btn" id="themeToggle" title="Toggle Theme">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="5"></circle>
+                            <line x1="12" y1="1" x2="12" y2="3"></line>
+                            <line x1="12" y1="21" x2="12" y2="23"></line>
+                            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                            <line x1="1" y1="12" x2="3" y2="12"></line>
+                            <line x1="21" y1="12" x2="23" y2="12"></line>
+                            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                        </svg>
+                    </button>
+                    <button class="glass-btn" id="settingsBtn" title="Settings">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="3"></circle>
+                            <path d="m19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1 1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <!-- Welcome Back Section -->
+            <div class="welcome-section hidden" id="welcomeSection">
+                <div class="glass-card welcome-card">
+                    <div class="welcome-content">
+                        <h2 class="welcome-title">Welcome Back, Focus Master! 🎯</h2>
+                        <p class="welcome-subtitle" id="welcomeText">Your progress continues...</p>
+                        <div class="stats-grid" id="statsGrid"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Task Setup -->
+            <div class="task-setup-section" id="taskSetupSection">
+                <div class="glass-card task-card">
+                    <div class="floating-label-input">
+                        <input type="text" id="taskInput" class="stunning-input" placeholder=" ">
+                        <label for="taskInput" class="floating-label">What are you focusing on today?</label>
+                        <div class="input-highlight"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Timer Section -->
+            <div class="timer-section">
+                <div class="timer-container">
+                    <div class="timer-card-3d">
+                        <div class="timer-display">
+                            <div class="circular-progress">
+                                <svg class="progress-svg" viewBox="0 0 200 200">
+                                    <defs>
+                                        <linearGradient id="progressGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                            <stop offset="0%" style="stop-color: var(--gradient-start)"/>
+                                            <stop offset="100%" style="stop-color: var(--gradient-end)"/>
+                                        </linearGradient>
+                                        <filter id="glow">
+                                            <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+                                            <feMerge> 
+                                                <feMergeNode in="coloredBlur"/>
+                                                <feMergeNode in="SourceGraphic"/> 
+                                            </feMerge>
+                                        </filter>
+                                    </defs>
+                                    <circle class="progress-bg" cx="100" cy="100" r="90" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="4"/>
+                                    <circle class="progress-circle" cx="100" cy="100" r="90" fill="none" stroke="url(#progressGradient)" stroke-width="6" stroke-linecap="round" filter="url(#glow)"/>
+                                </svg>
+                                
+                                <div class="timer-center">
+                                    <div class="timer-time" id="timerTime">25:00</div>
+                                    <div class="timer-label" id="timerLabel">Focus Time</div>
+                                    <div class="timer-pulse"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="timer-controls">
+                            <button class="control-btn secondary-btn" id="resetBtn">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="1 4 1 10 7 10"></polyline>
+                                    <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
+                                </svg>
+                                Reset
+                            </button>
+                            
+                            <button class="control-btn primary-btn" id="playPauseBtn">
+                                <svg class="play-icon" width="32" height="32" viewBox="0 0 24 24" fill="none">
+                                    <polygon points="5 3 19 12 5 21 5 3" fill="currentColor"/>
+                                </svg>
+                                <svg class="pause-icon hidden" width="32" height="32" viewBox="0 0 24 24" fill="none">
+                                    <rect x="6" y="4" width="4" height="16" fill="currentColor"/>
+                                    <rect x="14" y="4" width="4" height="16" fill="currentColor"/>
+                                </svg>
+                                <span class="btn-text">Start Focus</span>
+                            </button>
+
+                            <button class="control-btn secondary-btn" id="skipBtn">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polygon points="5 4 15 12 5 20 5 4"></polygon>
+                                    <line x1="19" y1="5" x2="19" y2="19"></line>
+                                </svg>
+                                Skip
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Settings -->
+            <div class="quick-settings">
+                <div class="glass-card preset-card">
+                    <h3 class="preset-title">Quick Presets</h3>
+                    <div class="preset-buttons">
+                        <button class="preset-btn active" data-work="25" data-break="5">
+                            <span class="preset-name">Classic</span>
+                            <span class="preset-time">25/5</span>
+                        </button>
+                        <button class="preset-btn" data-work="45" data-break="15">
+                            <span class="preset-name">Extended</span>
+                            <span class="preset-time">45/15</span>
+                        </button>
+                        <button class="preset-btn" data-work="90" data-break="20">
+                            <span class="preset-name">Marathon</span>
+                            <span class="preset-time">90/20</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Motivational Quote -->
+            <div class="quote-section">
+                <div class="glass-card quote-card">
+                    <div class="quote-content">
+                        <svg class="quote-icon" width="24" height="24" viewBox="0 0 24 24" fill="none">
+                            <path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z" fill="currentColor"/>
+                            <path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3c0 1 0 1 1 1z" fill="currentColor"/>
+                        </svg>
+                        <p class="quote-text" id="quoteText">Focus is a matter of deciding what things you're not going to do.</p>
+                        <div class="quote-author">— John Carmack</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Session History -->
+            <div class="history-section">
+                <div class="glass-card history-card">
+                    <div class="history-header">
+                        <h3 class="history-title">Today's Sessions</h3>
+                        <div class="history-summary" id="historySummary">
+                            <span class="summary-item">
+                                <span class="summary-value" id="totalSessions">0</span>
+                                <span class="summary-label">Sessions</span>
+                            </span>
+                            <span class="summary-item">
+                                <span class="summary-value" id="totalTime">0h</span>
+                                <span class="summary-label">Focused</span>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="history-list" id="historyList">
+                        <div class="empty-history">
+                            <div class="empty-icon">🎯</div>
+                            <p>Start your first session to build your focus streak!</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Send to Task Manager -->
+            <div class="bubble-section hidden" id="bubbleSection">
+                <div class="glass-card bubble-card">
+                    <div class="bubble-content">
+                        <div class="bubble-icon">🚀</div>
+                        <h3>Session Complete!</h3>
+                        <p>Send your progress to Task Manager?</p>
+                        <button class="bubble-btn" id="sendToBubbleBtn">
+                            <span>Send to Task Manager</span>
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M7 17L17 7"/>
+                                <path d="M7 7h10v10"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Settings Modal -->
+    <div class="modal-overlay hidden" id="settingsModal">
+        <div class="modal-content glass-modal">
+            <div class="modal-header">
+                <h3>⚙️ Settings</h3>
+                <button class="modal-close" id="closeModal">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="setting-group">
+                    <label class="setting-label">Focus Duration</label>
+                    <div class="slider-container">
+                        <input type="range" id="workSlider" class="stunning-slider" min="5" max="90" value="25">
+                        <div class="slider-value" id="workValue">25 min</div>
+                    </div>
+                </div>
+                
+                <div class="setting-group">
+                    <label class="setting-label">Break Duration</label>
+                    <div class="slider-container">
+                        <input type="range" id="breakSlider" class="stunning-slider" min="3" max="30" value="5">
+                        <div class="slider-value" id="breakValue">5 min</div>
+                    </div>
+                </div>
+
+                <div class="setting-group">
+                    <label class="setting-label">Task Manager URL</label>
+                    <div class="floating-label-input">
+                        <input type="url" id="bubbleUrlInput" class="stunning-input" placeholder=" ">
+                        <label for="bubbleUrlInput" class="floating-label">Bubble App URL</label>
+                        <div class="input-highlight"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn secondary" id="cancelSettings">Cancel</button>
+                <button class="modal-btn primary" id="saveSettings">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div class="modal-overlay hidden" id="successModal">
+        <div class="modal-content glass-modal success-modal">
+            <div class="modal-body">
+                <div class="success-animation">
+                    <div class="success-icon">🎉</div>
+                    <div class="confetti"></div>
+                </div>
+                <h3 id="successTitle">Amazing Focus Session!</h3>
+                <p id="successMessage">You completed 25 minutes of focused work!</p>
+                <div class="session-stats" id="sessionStats"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn primary" id="continueBtn">Continue</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
