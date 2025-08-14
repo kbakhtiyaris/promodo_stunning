@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FocusFlow - Stunning Pomodoro Timer</title>
+    <title>Focus Flow - Stunning Pomodoro Timer</title>
     <link rel="stylesheet" href="style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 </head>
 <body>
     <!-- Animated Background -->
@@ -21,222 +22,229 @@
     <header class="stunning-header">
         <div class="container">
             <div class="header-content">
-                <h1 class="logo-title">
-                    <span class="logo-icon">⚡</span>
-                    FocusFlow
-                </h1>
+                <div class="logo-title">
+                    <div class="logo-icon">⏱️</div>
+                    <span>FOCUS FLOW</span>
+                </div>
                 <div class="header-controls">
-                    <button class="glass-btn" id="themeToggle" title="Toggle Theme">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <circle cx="12" cy="12" r="5"></circle>
-                            <line x1="12" y1="1" x2="12" y2="3"></line>
-                            <line x1="12" y1="21" x2="12" y2="23"></line>
-                            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-                            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-                            <line x1="1" y1="12" x2="3" y2="12"></line>
-                            <line x1="21" y1="12" x2="23" y2="12"></line>
-                            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-                            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
-                        </svg>
-                    </button>
-                    <button class="glass-btn" id="settingsBtn" title="Settings">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <circle cx="12" cy="12" r="3"></circle>
-                            <path d="m12 1 1.545 4.455L18 6l-4.455 1.545L14 12l-1.545-4.455L8 6l4.455-1.545z"></path>
-                            <path d="M12 23l-1.545-4.455L6 18l4.455-1.545L10 12l1.545 4.455L16 18l-4.455 1.545z"></path>
-                        </svg>
+                    <button class="glass-btn" id="settingsBtn">
+                        <i class="fas fa-cog"></i>
                     </button>
                 </div>
             </div>
         </div>
     </header>
 
+    <!-- Welcome Message (hidden by default) -->
+    <div id="welcomeMessage" class="container" style="display: none;">
+        <div class="glass-card welcome-card slide-up">
+            <div class="welcome-title">Welcome back! 🎉</div>
+            <p>Ready to continue your focus journey?</p>
+        </div>
+    </div>
+
     <!-- Main Content -->
     <main class="main-content">
         <div class="container">
-            <!-- Welcome Message for Returning Users -->
-            <div id="welcomeMessage" class="welcome-message" style="display: none;">
-                <div class="glass-card">
-                    <h2>Welcome back! 🎉</h2>
-                    <p>Ready to continue your productivity journey?</p>
-                </div>
-            </div>
-
             <!-- Timer Section -->
             <section class="timer-section">
                 <div class="timer-container">
-                    <div class="session-type">
-                        <span id="sessionType" class="session-type-text">FOCUS TIME</span>
-                    </div>
-
-                    <div class="timer-display">
-                        <svg class="progress-ring" width="320" height="320">
-                            <circle cx="160" cy="160" r="140" stroke-width="8" stroke="#ffffff20" fill="none"></circle>
-                            <circle id="progressCircle" cx="160" cy="160" r="140" stroke-width="8" fill="none" 
-                                    stroke="url(#progressGradient)" stroke-linecap="round" transform="rotate(-90 160 160)"
-                                    style="stroke-dasharray: 879.646; stroke-dashoffset: 879.646; transition: stroke-dashoffset 1s ease;">
-                                <defs>
-                                    <linearGradient id="progressGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                                        <stop offset="0%" style="stop-color:#667eea"/>
-                                        <stop offset="100%" style="stop-color:#764ba2"/>
-                                    </linearGradient>
-                                </defs>
-                            </circle>
-                        </svg>
-                        <div class="timer-content">
-                            <div id="timeDisplay" class="time-display">25:00</div>
-                            <div id="taskDisplay" class="task-display">Ready to focus?</div>
+                    <div class="timer-card-3d" id="timerCard">
+                        <div class="circular-progress">
+                            <svg class="progress-svg" viewBox="0 0 180 180">
+                                <circle 
+                                    cx="90" 
+                                    cy="90" 
+                                    r="85" 
+                                    fill="none" 
+                                    stroke="rgba(255,255,255,0.1)" 
+                                    stroke-width="10"
+                                ></circle>
+                                <circle 
+                                    cx="90" 
+                                    cy="90" 
+                                    r="85" 
+                                    fill="none" 
+                                    stroke="currentColor" 
+                                    stroke-width="10" 
+                                    stroke-linecap="round"
+                                    class="progress-circle"
+                                    id="progressCircle"
+                                ></circle>
+                            </svg>
+                            <div class="timer-center">
+                                <div class="timer-time" id="timerDisplay">25:00</div>
+                                <div class="timer-label">Ready to focus?</div>
+                            </div>
+                            <div class="timer-pulse"></div>
                         </div>
-                    </div>
-
-                    <div class="timer-controls">
-                        <button id="startBtn" class="control-btn primary">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <polygon points="5,3 19,12 5,21"></polygon>
-                            </svg>
-                            Start
-                        </button>
-                        <button id="pauseBtn" class="control-btn secondary" style="display: none;">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <rect x="6" y="4" width="4" height="16"></rect>
-                                <rect x="14" y="4" width="4" height="16"></rect>
-                            </svg>
-                            Pause
-                        </button>
-                        <button id="resetBtn" class="control-btn tertiary">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
-                                <path d="M3 3v5h5"></path>
-                            </svg>
-                            Reset
-                        </button>
+                        
+                        <div class="timer-controls">
+                            <button class="control-btn primary-btn" id="startBtn">
+                                <i class="fas fa-play play-icon"></i>
+                                Start Focus
+                            </button>
+                            <button class="control-btn secondary-btn hidden" id="pauseBtn">
+                                <i class="fas fa-pause pause-icon"></i>
+                                Pause
+                            </button>
+                            <button class="control-btn secondary-btn" id="resetBtn">
+                                <i class="fas fa-redo"></i>
+                                Reset
+                            </button>
+                        </div>
                     </div>
                 </div>
             </section>
 
-            <!-- Task Setup -->
-            <section class="task-setup">
-                <div class="glass-card">
-                    <h3>What are you focusing on?</h3>
-                    <div class="input-group">
-                        <input type="text" id="taskInput" class="glass-input" placeholder="Enter your task (e.g., Study Math, Write Report)..." maxlength="100">
-                    </div>
+            <!-- Task Input -->
+            <section class="glass-card fade-in">
+                <h3 class="preset-title">What are you focusing on?</h3>
+                <div class="floating-label-input">
+                    <input 
+                        type="text" 
+                        id="taskInput" 
+                        class="stunning-input" 
+                        placeholder=" "
+                        maxlength="100"
+                    />
+                    <label class="floating-label">Enter your task or goal...</label>
+                </div>
+            </section>
 
-                    <div class="time-settings">
-                        <div class="preset-buttons">
-                            <button class="preset-btn active" data-work="25" data-break="5">
-                                <span class="preset-name">Classic</span>
-                                <span class="preset-time">25/5</span>
-                            </button>
-                            <button class="preset-btn" data-work="45" data-break="15">
-                                <span class="preset-name">Extended</span>
-                                <span class="preset-time">45/15</span>
-                            </button>
-                            <button class="preset-btn" data-work="90" data-break="20">
-                                <span class="preset-name">Marathon</span>
-                                <span class="preset-time">90/20</span>
-                            </button>
+            <!-- Time Presets -->
+            <section class="glass-card">
+                <h3 class="preset-title">Choose Your Focus Duration</h3>
+                <div class="preset-buttons">
+                    <button class="preset-btn active" data-work="25" data-break="5">
+                        <div class="preset-name">Classic</div>
+                        <div class="preset-time">25 min / 5 min</div>
+                    </button>
+                    <button class="preset-btn" data-work="45" data-break="15">
+                        <div class="preset-name">Extended</div>
+                        <div class="preset-time">45 min / 15 min</div>
+                    </button>
+                    <button class="preset-btn" data-work="90" data-break="20">
+                        <div class="preset-name">Marathon</div>
+                        <div class="preset-time">90 min / 20 min</div>
+                    </button>
+                </div>
+
+                <!-- Custom Time Settings -->
+                <div style="margin-top: 2rem;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div>
+                            <label for="workMinutes" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Work Minutes</label>
+                            <input type="number" id="workMinutes" class="form-control" value="25" min="1" max="180">
                         </div>
+                        <div>
+                            <label for="breakMinutes" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Break Minutes</label>
+                            <input type="number" id="breakMinutes" class="form-control" value="5" min="1" max="60">
+                        </div>
+                    </div>
+                </div>
+            </section>
 
-                        <div class="custom-times">
-                            <div class="time-input-group">
-                                <label>Work</label>
-                                <input type="number" id="workMinutes" min="1" max="90" value="25">
-                                <span>min</span>
-                            </div>
-                            <div class="time-input-group">
-                                <label>Break</label>
-                                <input type="number" id="breakMinutes" min="1" max="30" value="5">
-                                <span>min</span>
-                            </div>
+            <!-- Daily Stats -->
+            <section class="glass-card">
+                <div class="history-header">
+                    <h3 class="history-title">Today's Progress</h3>
+                    <div class="history-summary">
+                        <div class="summary-item">
+                            <div class="summary-value" id="todayFocusTime">0</div>
+                            <div class="summary-label">Minutes Focused</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-value" id="todaySessionCount">0</div>
+                            <div class="summary-label">Sessions Completed</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-value" id="currentStreak">0</div>
+                            <div class="summary-label">Day Streak</div>
                         </div>
                     </div>
                 </div>
             </section>
 
             <!-- Motivational Quote -->
-            <section class="motivation-section">
-                <div class="glass-card quote-card">
-                    <div id="motivationalQuote" class="quote-text">
-                        "Focus is the gateway to excellence."
-                    </div>
+            <section class="glass-card quote-card">
+                <div class="quote-icon">
+                    <i class="fas fa-quote-left"></i>
                 </div>
-            </section>
-
-            <!-- Session Complete Modal -->
-            <div id="sessionComplete" class="session-complete" style="display: none;">
-                <div class="glass-card completion-card">
-                    <h2>🎉 Session Complete!</h2>
-                    <p id="completionMessage">Amazing work! You've completed another focus session.</p>
-
-                    <div class="completion-actions">
-                        <button id="sendToBubbleBtn" class="action-btn primary">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-                                <polyline points="9,22 9,12 15,12 15,22"></polyline>
-                            </svg>
-                            Send to Task Manager
-                        </button>
-                        <button id="startNewSessionBtn" class="action-btn secondary">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <polygon points="5,3 19,12 5,21"></polygon>
-                            </svg>
-                            Start New Session
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Today's Statistics -->
-            <section class="stats-section">
-                <div class="glass-card">
-                    <h3>Today's Progress</h3>
-                    <div class="stats-grid">
-                        <div class="stat-item">
-                            <div class="stat-value" id="todayFocusTime">0</div>
-                            <div class="stat-label">Minutes Focused</div>
-                        </div>
-                        <div class="stat-item">
-                            <div class="stat-value" id="todaySessionCount">0</div>
-                            <div class="stat-label">Sessions Completed</div>
-                        </div>
-                        <div class="stat-item">
-                            <div class="stat-value" id="currentStreak">0</div>
-                            <div class="stat-label">Day Streak</div>
-                        </div>
-                    </div>
-                </div>
+                <div class="quote-text" id="motivationalQuote">"Focus is the gateway to excellence."</div>
             </section>
 
             <!-- Session History -->
-            <section class="history-section">
-                <div class="glass-card">
-                    <h3>Recent Sessions</h3>
-                    <div id="sessionHistory" class="session-history">
-                        <p class="no-sessions">Complete your first session to see history here!</p>
+            <section class="glass-card">
+                <h3 class="history-title">Recent Sessions</h3>
+                <div id="sessionHistory">
+                    <div class="empty-history">
+                        <div class="empty-icon">🎯</div>
+                        <p>Complete your first session to see history here!</p>
                     </div>
+                </div>
+            </section>
+
+            <!-- Session Complete -->
+            <section class="glass-card bubble-card hidden" id="sessionComplete">
+                <div class="success-animation">
+                    <div class="success-icon">🎉</div>
+                    <div class="confetti"></div>
+                </div>
+                <h2>Session Complete!</h2>
+                <p>Great work! You've completed another focus session.</p>
+                <div style="display: flex; gap: 1rem; justify-content: center; margin-top: 1.5rem;">
+                    <button class="bubble-btn" id="sendToBubbleBtn">
+                        <i class="fas fa-rocket"></i>
+                        Send to Task Manager
+                    </button>
+                    <button class="btn btn--secondary" id="startNewSessionBtn">
+                        <i class="fas fa-plus"></i>
+                        New Session
+                    </button>
                 </div>
             </section>
         </div>
     </main>
 
     <!-- Settings Modal -->
-    <div id="settingsModal" class="modal" style="display: none;">
-        <div class="modal-content glass-card">
+    <div class="modal-overlay hidden" id="settingsModal">
+        <div class="glass-modal">
             <div class="modal-header">
                 <h3>Settings</h3>
-                <button id="closeSettings" class="close-btn">&times;</button>
+                <button class="modal-close" id="closeSettings">×</button>
             </div>
             <div class="modal-body">
                 <div class="setting-group">
-                    <label>Debug Info:</label>
-                    <p>User ID: <span id="debugUserId"></span></p>
-                    <p>Sessions Today: <span id="debugSessionCount"></span></p>
+                    <label class="setting-label">Focus Duration (minutes)</label>
+                    <div class="slider-container">
+                        <input type="range" class="stunning-slider" min="5" max="120" value="25" id="focusSlider">
+                        <span class="slider-value" id="focusValue">25</span>
+                    </div>
                 </div>
-
                 <div class="setting-group">
-                    <button id="clearData" class="action-btn tertiary">Clear All Data</button>
+                    <label class="setting-label">Break Duration (minutes)</label>
+                    <div class="slider-container">
+                        <input type="range" class="stunning-slider" min="1" max="30" value="5" id="breakSlider">
+                        <span class="slider-value" id="breakValue">5</span>
+                    </div>
                 </div>
+                <div class="setting-group">
+                    <label class="setting-label">
+                        <input type="checkbox" id="soundToggle" checked> 
+                        Play completion sound
+                    </label>
+                </div>
+                <div class="setting-group">
+                    <label class="setting-label">
+                        <input type="checkbox" id="notificationToggle" checked> 
+                        Show browser notifications
+                    </label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn secondary" id="resetSettings">Reset</button>
+                <button class="modal-btn primary" id="saveSettings">Save</button>
             </div>
         </div>
     </div>
