@@ -22,8 +22,10 @@
         <div class="container">
             <div class="header-content">
                 <h1 class="logo-title">
-                    <span class="logo-icon">⚡</span>
-                    FocusFlow
+                    <a href="#" onclick="location.reload();" class="logo-link" style="text-decoration: none; color: inherit;">
+                        <span class="logo-icon">⚡</span>
+                        FocusFlow
+                    </a>
                 </h1>
                 <div class="header-controls">
                     <button class="glass-btn" id="themeToggle" title="Toggle Theme">
@@ -39,6 +41,14 @@
                             <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
                         </svg>
                     </button>
+                    <!-- Bubble.io Link Button -->
+                    <a href="https://task-51525.bubbleapps.io/version-test/tasks" target="_blank" class="glass-btn" id="bubbleLinkBtn" title="Go to Task Manager" style="display: inline-flex; align-items: center; justify-content: center;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <path d="M8 12h8"></path>
+                            <path d="M12 8v8"></path>
+                        </svg>
+                    </a>
                     <button class="glass-btn" id="settingsBtn" title="Settings">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <circle cx="12" cy="12" r="3"></circle>
@@ -243,7 +253,7 @@
                     </div>
                 </div>
 
-                <div class="setting-group">
+                <div class="setting-group" hidden>
                     <label class="setting-label">Task Manager URL</label>
                     <div class="floating-label-input">
                         <input type="url" id="bubbleUrlInput" class="stunning-input" placeholder=" ">
