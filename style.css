@@ -265,7 +265,7 @@
 
 [data-color-scheme="light"] {
   /* RGB versions for opacity control (light mode) */
-  --color-brown-600-rgb: 94, 82, 64;
+  --color-brown-600-rgb: 100, 82, 64;
   --color-teal-500-rgb: 33, 128, 141;
   --color-slate-900-rgb: 19, 52, 59;
   
