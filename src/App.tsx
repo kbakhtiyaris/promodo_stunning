@@ -30,6 +30,11 @@ interface PomodoroSession {
   userId: string;
 }
 
+interface StreakData {
+  lastVisitDate: string;
+  currentStreak: number;
+  longestStreak: number;
+}
 interface Settings {
   workMinutes: number;
   breakMinutes: number;
@@ -98,8 +103,56 @@ function App() {
     return saved ? JSON.parse(saved) : [];
   });
 
+  const [streakData, setStreakData] = useState<StreakData>(() => {
+    const saved = localStorage.getItem('focusflow_streak');
+    return saved ? JSON.parse(saved) : {
+      lastVisitDate: '',
+      currentStreak: 0,
+      longestStreak: 0
+    };
+  });
   const progressRef = useRef<SVGCircleElement>(null);
 
+  // Update streak on app load and session completion
+  useEffect(() => {
+    updateStreak();
+  }, []);
+
+  const updateStreak = () => {
+    const today = new Date().toISOString().split('T')[0];
+    const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+    
+    let newStreakData = { ...streakData };
+    
+    if (streakData.lastVisitDate === '') {
+      // First visit ever
+      newStreakData = {
+        lastVisitDate: today,
+        currentStreak: 1,
+        longestStreak: 1
+      };
+    } else if (streakData.lastVisitDate === today) {
+      // Already visited today, no change needed
+      return;
+    } else if (streakData.lastVisitDate === yesterday) {
+      // Visited yesterday, increment streak
+      newStreakData = {
+        lastVisitDate: today,
+        currentStreak: streakData.currentStreak + 1,
+        longestStreak: Math.max(streakData.longestStreak, streakData.currentStreak + 1)
+      };
+    } else {
+      // Missed one or more days, reset streak
+      newStreakData = {
+        lastVisitDate: today,
+        currentStreak: 1,
+        longestStreak: streakData.longestStreak
+      };
+    }
+    
+    setStreakData(newStreakData);
+    localStorage.setItem('focusflow_streak', JSON.stringify(newStreakData));
+  };
   // Initialize timer display
   useEffect(() => {
     if (timeLeft === 0 && !isRunning) {
@@ -208,6 +261,9 @@ function App() {
       const newSessions = [...sessions, session];
       setSessions(newSessions);
       localStorage.setItem('focusflow_sessions', JSON.stringify(newSessions));
+      
+      // Update streak when completing a session
+      updateStreak();
 
       // Start break time
       setIsBreakTime(true);
@@ -532,7 +588,9 @@ function App() {
                     <Award className="w-5 h-5 text-purple-600" />
                     <span className="text-sm text-gray-700">Streak</span>
                   </div>
-                  <span className="text-lg font-bold text-purple-600">3 days</span>
+                  <span className="text-lg font-bold text-purple-600">
+                    {streakData.currentStreak} day{streakData.currentStreak !== 1 ? 's' : ''}
+                  </span>
                 </div>
               </div>
             </div>
