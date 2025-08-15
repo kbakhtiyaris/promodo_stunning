@@ -16,7 +16,9 @@ import {
   Clock,
   Calendar,
   BarChart3,
-  Sparkles
+  Sparkles,
+  Moon,
+  Sun
 } from 'lucide-react';
 
 interface PomodoroSession {
@@ -41,6 +43,7 @@ interface Settings {
   soundEnabled: boolean;
   notificationsEnabled: boolean;
   bubbleUrl: string;
+  darkMode: boolean;
 }
 
 const MOTIVATIONAL_QUOTES = {
@@ -94,7 +97,8 @@ function App() {
       breakMinutes: 5,
       soundEnabled: true,
       notificationsEnabled: true,
-      bubbleUrl: 'https://task-51525.bubbleapps.io/version-test/tasks'
+      bubbleUrl: 'https://task-51525.bubbleapps.io/version-test/tasks',
+      darkMode: false
     };
   });
 
@@ -397,17 +401,37 @@ function App() {
   const todaysStats = getTodaysStats();
   const displayTime = timeLeft || (settings.workMinutes * 60);
 
+  const toggleDarkMode = () => {
+    const newSettings = { ...settings, darkMode: !settings.darkMode };
+    setSettings(newSettings);
+    localStorage.setItem('focusflow_settings', JSON.stringify(newSettings));
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50">
+    <div className={`min-h-screen transition-colors duration-300 ${
+      settings.darkMode 
+        ? 'bg-gradient-to-br from-gray-900 via-gray-800 to-indigo-900' 
+        : 'bg-gradient-to-br from-indigo-50 via-white to-purple-50'
+    }`}>
       {/* Animated Background */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-yellow-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-2000"></div>
-        <div className="absolute top-40 left-40 w-80 h-80 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-4000"></div>
+        <div className={`absolute -top-40 -right-40 w-80 h-80 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob ${
+          settings.darkMode ? 'bg-purple-600' : 'bg-purple-300'
+        }`}></div>
+        <div className={`absolute -bottom-40 -left-40 w-80 h-80 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-2000 ${
+          settings.darkMode ? 'bg-yellow-600' : 'bg-yellow-300'
+        }`}></div>
+        <div className={`absolute top-40 left-40 w-80 h-80 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-4000 ${
+          settings.darkMode ? 'bg-pink-600' : 'bg-pink-300'
+        }`}></div>
       </div>
 
       {/* Header */}
-      <header className="relative z-10 bg-white/80 backdrop-blur-md border-b border-gray-200/50 sticky top-0">
+      <header className={`relative z-10 backdrop-blur-md border-b sticky top-0 transition-colors duration-300 ${
+        settings.darkMode 
+          ? 'bg-gray-900/80 border-gray-700/50' 
+          : 'bg-white/80 border-gray-200/50'
+      }`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-3">
@@ -415,16 +439,32 @@ function App() {
                 <Timer className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h1 className="text-xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+                <h1 className={`text-xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent`}>
                   Focus Flow
                 </h1>
-                <p className="text-xs text-gray-500">Productivity Timer</p>
+                <p className={`text-xs ${settings.darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                  Productivity Timer
+                </p>
               </div>
             </div>
             <div className="flex items-center space-x-3">
               <button
+                onClick={toggleDarkMode}
+                className={`p-2 rounded-lg transition-all duration-200 ${
+                  settings.darkMode 
+                    ? 'text-gray-300 hover:text-yellow-400 hover:bg-gray-800' 
+                    : 'text-gray-600 hover:text-indigo-600 hover:bg-indigo-50'
+                }`}
+              >
+                {settings.darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+              </button>
+              <button
                 onClick={() => setShowSettings(true)}
-                className="p-2 text-gray-600 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all duration-200"
+                className={`p-2 rounded-lg transition-all duration-200 ${
+                  settings.darkMode 
+                    ? 'text-gray-300 hover:text-indigo-400 hover:bg-gray-800' 
+                    : 'text-gray-600 hover:text-indigo-600 hover:bg-indigo-50'
+                }`}
               >
                 <Settings className="w-5 h-5" />
               </button>
@@ -444,7 +484,11 @@ function App() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Timer Section */}
           <div className="lg:col-span-2">
-            <div className="bg-white/70 backdrop-blur-md rounded-3xl shadow-xl border border-white/50 p-8 mb-8">
+            <div className={`backdrop-blur-md rounded-3xl shadow-xl border p-8 mb-8 transition-colors duration-300 ${
+              settings.darkMode 
+                ? 'bg-gray-800/70 border-gray-700/50' 
+                : 'bg-white/70 border-white/50'
+            }`}>
               <div className="text-center mb-8">
                 <div className="relative inline-block">
                   <svg className="w-64 h-64 transform -rotate-90" viewBox="0 0 180 180">
@@ -453,7 +497,7 @@ function App() {
                       cy="90"
                       r="85"
                       fill="none"
-                      stroke="rgb(229 231 235)"
+                      stroke={settings.darkMode ? "rgb(75 85 99)" : "rgb(229 231 235)"}
                       strokeWidth="8"
                     />
                     <circle
@@ -478,11 +522,15 @@ function App() {
                     <div className="text-5xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent mb-2">
                       {formatTime(displayTime)}
                     </div>
-                    <div className="text-sm text-gray-500 uppercase tracking-wide">
+                    <div className={`text-sm uppercase tracking-wide ${
+                      settings.darkMode ? 'text-gray-400' : 'text-gray-500'
+                    }`}>
                       {isBreakTime ? 'Break Time' : 'Focus Time'}
                     </div>
                     {isBreakTime && (
-                      <div className="flex items-center mt-2 text-xs text-orange-600">
+                      <div className={`flex items-center mt-2 text-xs ${
+                        settings.darkMode ? 'text-orange-400' : 'text-orange-600'
+                      }`}>
                         <Coffee className="w-3 h-3 mr-1" />
                         <span>Take a breather!</span>
                       </div>
@@ -515,7 +563,11 @@ function App() {
                 )}
                 <button
                   onClick={resetTimer}
-                  className="flex items-center space-x-2 px-6 py-4 bg-gray-100 text-gray-700 rounded-2xl hover:bg-gray-200 transition-all duration-200"
+                  className={`flex items-center space-x-2 px-6 py-4 rounded-2xl transition-all duration-200 ${
+                    settings.darkMode 
+                      ? 'bg-gray-700 text-gray-300 hover:bg-gray-600' 
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
                 >
                   <RotateCcw className="w-5 h-5" />
                   <span className="font-semibold">Reset</span>
@@ -524,7 +576,9 @@ function App() {
 
               {/* Task Input */}
               <div className="mb-8">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className={`block text-sm font-medium mb-2 ${
+                  settings.darkMode ? 'text-gray-300' : 'text-gray-700'
+                }`}>
                   {isBreakTime ? 'Break Activity (optional)' : 'What are you working on?'}
                 </label>
                 <input
@@ -532,7 +586,11 @@ function App() {
                   value={currentTask}
                   onChange={(e) => setCurrentTask(e.target.value)}
                   placeholder={isBreakTime ? 'Take a walk, stretch, hydrate...' : 'Enter your task or goal...'}
-                  className="w-full px-4 py-3 bg-white/50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200"
+                  className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 ${
+                    settings.darkMode 
+                      ? 'bg-gray-700/50 border-gray-600 text-gray-200 placeholder-gray-400' 
+                      : 'bg-white/50 border-gray-200 text-gray-900 placeholder-gray-500'
+                  }`}
                   maxLength={100}
                   disabled={isBreakTime}
                 />
@@ -541,7 +599,9 @@ function App() {
               {/* Presets */}
               {!isBreakTime && (
               <div className="mb-8">
-                <h3 className="text-lg font-semibold text-gray-800 mb-4">Quick Presets</h3>
+                <h3 className={`text-lg font-semibold mb-4 ${
+                  settings.darkMode ? 'text-gray-200' : 'text-gray-800'
+                }`}>Quick Presets</h3>
                 <div className="grid grid-cols-3 gap-4">
                   {PRESETS.map((preset) => {
                     const Icon = preset.icon;
@@ -549,12 +609,20 @@ function App() {
                       <button
                         key={preset.name}
                         onClick={() => applyPreset(preset)}
-                        className="p-4 bg-white/50 border border-gray-200 rounded-xl hover:bg-white/80 hover:border-indigo-300 transition-all duration-200 group disabled:opacity-50 disabled:cursor-not-allowed"
+                        className={`p-4 border rounded-xl transition-all duration-200 group disabled:opacity-50 disabled:cursor-not-allowed ${
+                          settings.darkMode 
+                            ? 'bg-gray-700/50 border-gray-600 hover:bg-gray-700/80 hover:border-indigo-400' 
+                            : 'bg-white/50 border-gray-200 hover:bg-white/80 hover:border-indigo-300'
+                        }`}
                         disabled={isRunning}
                       >
                         <Icon className="w-6 h-6 text-indigo-600 mx-auto mb-2 group-hover:scale-110 transition-transform duration-200" />
-                        <div className="text-sm font-medium text-gray-800">{preset.name}</div>
-                        <div className="text-xs text-gray-500">{preset.work}m / {preset.break}m</div>
+                        <div className={`text-sm font-medium ${
+                          settings.darkMode ? 'text-gray-200' : 'text-gray-800'
+                        }`}>{preset.name}</div>
+                        <div className={`text-xs ${
+                          settings.darkMode ? 'text-gray-400' : 'text-gray-500'
+                        }`}>{preset.work}m / {preset.break}m</div>
                       </button>
                     );
                   })}
@@ -566,15 +634,23 @@ function App() {
             {/* Quote Section */}
             <div className={`backdrop-blur-md rounded-2xl p-6 border ${
               isBreakTime 
-                ? 'bg-gradient-to-r from-orange-500/10 to-amber-500/10 border-orange-200/50' 
-                : 'bg-gradient-to-r from-indigo-500/10 to-purple-500/10 border-indigo-200/50'
+                ? settings.darkMode 
+                  ? 'bg-gradient-to-r from-orange-500/20 to-amber-500/20 border-orange-400/30' 
+                  : 'bg-gradient-to-r from-orange-500/10 to-amber-500/10 border-orange-200/50'
+                : settings.darkMode 
+                  ? 'bg-gradient-to-r from-indigo-500/20 to-purple-500/20 border-indigo-400/30' 
+                  : 'bg-gradient-to-r from-indigo-500/10 to-purple-500/10 border-indigo-200/50'
             }`}>
               <div className="flex items-start space-x-4">
                 <Sparkles className={`w-6 h-6 mt-1 flex-shrink-0 ${
-                  isBreakTime ? 'text-orange-600' : 'text-indigo-600'
+                  isBreakTime 
+                    ? settings.darkMode ? 'text-orange-400' : 'text-orange-600'
+                    : settings.darkMode ? 'text-indigo-400' : 'text-indigo-600'
                 }`} />
                 <div>
-                  <p className="text-gray-700 italic text-lg leading-relaxed">"{currentQuote}"</p>
+                  <p className={`italic text-lg leading-relaxed ${
+                    settings.darkMode ? 'text-gray-300' : 'text-gray-700'
+                  }`}>"{currentQuote}"</p>
                 </div>
               </div>
             </div>
@@ -583,32 +659,70 @@ function App() {
           {/* Stats Sidebar */}
           <div className="space-y-6">
             {/* Today's Stats */}
-            <div className="bg-white/70 backdrop-blur-md rounded-2xl shadow-lg border border-white/50 p-6">
-              <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-                <BarChart3 className="w-5 h-5 text-indigo-600 mr-2" />
+            <div className={`backdrop-blur-md rounded-2xl shadow-lg border p-6 transition-colors duration-300 ${
+              settings.darkMode 
+                ? 'bg-gray-800/70 border-gray-700/50' 
+                : 'bg-white/70 border-white/50'
+            }`}>
+              <h3 className={`text-lg font-semibold mb-4 flex items-center ${
+                settings.darkMode ? 'text-gray-200' : 'text-gray-800'
+              }`}>
+                <BarChart3 className={`w-5 h-5 mr-2 ${
+                  settings.darkMode ? 'text-indigo-400' : 'text-indigo-600'
+                }`} />
                 Today's Progress
               </h3>
               <div className="space-y-4">
-                <div className="flex items-center justify-between p-3 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl">
+                <div className={`flex items-center justify-between p-3 rounded-xl ${
+                  settings.darkMode 
+                    ? 'bg-gradient-to-r from-green-900/30 to-emerald-900/30' 
+                    : 'bg-gradient-to-r from-green-50 to-emerald-50'
+                }`}>
                   <div className="flex items-center space-x-3">
-                    <Clock className="w-5 h-5 text-green-600" />
-                    <span className="text-sm text-gray-700">Focus Time</span>
+                    <Clock className={`w-5 h-5 ${
+                      settings.darkMode ? 'text-green-400' : 'text-green-600'
+                    }`} />
+                    <span className={`text-sm ${
+                      settings.darkMode ? 'text-gray-300' : 'text-gray-700'
+                    }`}>Focus Time</span>
                   </div>
-                  <span className="text-lg font-bold text-green-600">{todaysStats.totalMinutes}m</span>
+                  <span className={`text-lg font-bold ${
+                    settings.darkMode ? 'text-green-400' : 'text-green-600'
+                  }`}>{todaysStats.totalMinutes}m</span>
                 </div>
-                <div className="flex items-center justify-between p-3 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl">
+                <div className={`flex items-center justify-between p-3 rounded-xl ${
+                  settings.darkMode 
+                    ? 'bg-gradient-to-r from-blue-900/30 to-indigo-900/30' 
+                    : 'bg-gradient-to-r from-blue-50 to-indigo-50'
+                }`}>
                   <div className="flex items-center space-x-3">
-                    <CheckCircle className="w-5 h-5 text-blue-600" />
-                    <span className="text-sm text-gray-700">Sessions</span>
+                    <CheckCircle className={`w-5 h-5 ${
+                      settings.darkMode ? 'text-blue-400' : 'text-blue-600'
+                    }`} />
+                    <span className={`text-sm ${
+                      settings.darkMode ? 'text-gray-300' : 'text-gray-700'
+                    }`}>Sessions</span>
                   </div>
-                  <span className="text-lg font-bold text-blue-600">{todaysStats.sessionCount}</span>
+                  <span className={`text-lg font-bold ${
+                    settings.darkMode ? 'text-blue-400' : 'text-blue-600'
+                  }`}>{todaysStats.sessionCount}</span>
                 </div>
-                <div className="flex items-center justify-between p-3 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl">
+                <div className={`flex items-center justify-between p-3 rounded-xl ${
+                  settings.darkMode 
+                    ? 'bg-gradient-to-r from-purple-900/30 to-pink-900/30' 
+                    : 'bg-gradient-to-r from-purple-50 to-pink-50'
+                }`}>
                   <div className="flex items-center space-x-3">
-                    <Award className="w-5 h-5 text-purple-600" />
-                    <span className="text-sm text-gray-700">Streak</span>
+                    <Award className={`w-5 h-5 ${
+                      settings.darkMode ? 'text-purple-400' : 'text-purple-600'
+                    }`} />
+                    <span className={`text-sm ${
+                      settings.darkMode ? 'text-gray-300' : 'text-gray-700'
+                    }`}>Streak</span>
                   </div>
-                  <span className="text-lg font-bold text-purple-600">
+                  <span className={`text-lg font-bold ${
+                    settings.darkMode ? 'text-purple-400' : 'text-purple-600'
+                  }`}>
                     {streakData.currentStreak} day{streakData.currentStreak !== 1 ? 's' : ''}
                   </span>
                 </div>
@@ -616,9 +730,17 @@ function App() {
             </div>
 
             {/* Recent Sessions */}
-            <div className="bg-white/70 backdrop-blur-md rounded-2xl shadow-lg border border-white/50 p-6">
-              <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-                <Calendar className="w-5 h-5 text-indigo-600 mr-2" />
+            <div className={`backdrop-blur-md rounded-2xl shadow-lg border p-6 transition-colors duration-300 ${
+              settings.darkMode 
+                ? 'bg-gray-800/70 border-gray-700/50' 
+                : 'bg-white/70 border-white/50'
+            }`}>
+              <h3 className={`text-lg font-semibold mb-4 flex items-center ${
+                settings.darkMode ? 'text-gray-200' : 'text-gray-800'
+              }`}>
+                <Calendar className={`w-5 h-5 mr-2 ${
+                  settings.darkMode ? 'text-indigo-400' : 'text-indigo-600'
+                }`} />
                 Recent Sessions
               </h3>
               <div className="mb-4">
@@ -632,20 +754,30 @@ function App() {
               </div>
               <div className="space-y-3">
                 {sessions.slice(-3).reverse().map((session) => (
-                  <div key={session.id} className="flex items-center justify-between p-3 bg-gray-50/50 rounded-xl">
+                  <div key={session.id} className={`flex items-center justify-between p-3 rounded-xl ${
+                    settings.darkMode ? 'bg-gray-700/50' : 'bg-gray-50/50'
+                  }`}>
                     <div>
-                      <div className="text-sm font-medium text-gray-800 truncate max-w-32">
+                      <div className={`text-sm font-medium truncate max-w-32 ${
+                        settings.darkMode ? 'text-gray-200' : 'text-gray-800'
+                      }`}>
                         {session.taskName}
                       </div>
-                      <div className="text-xs text-gray-500">
+                      <div className={`text-xs ${
+                        settings.darkMode ? 'text-gray-400' : 'text-gray-500'
+                      }`}>
                         {session.workMinutes} minutes
                       </div>
                     </div>
-                    <CheckCircle className="w-5 h-5 text-green-500" />
+                    <CheckCircle className={`w-5 h-5 ${
+                      settings.darkMode ? 'text-green-400' : 'text-green-500'
+                    }`} />
                   </div>
                 ))}
                 {sessions.length === 0 && (
-                  <div className="text-center py-8 text-gray-500">
+                  <div className={`text-center py-8 ${
+                    settings.darkMode ? 'text-gray-400' : 'text-gray-500'
+                  }`}>
                     <Target className="w-8 h-8 mx-auto mb-2 opacity-50" />
                     <p className="text-sm">Complete your first session!</p>
                   </div>
@@ -659,12 +791,18 @@ function App() {
       {/* Success Modal */}
       {showSuccess && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-3xl shadow-2xl max-w-md w-full p-8 text-center transform animate-bounce-in">
+          <div className={`rounded-3xl shadow-2xl max-w-md w-full p-8 text-center transform animate-bounce-in transition-colors duration-300 ${
+            settings.darkMode ? 'bg-gray-800' : 'bg-white'
+          }`}>
             <div className="w-16 h-16 bg-gradient-to-r from-green-500 to-emerald-600 rounded-full flex items-center justify-center mx-auto mb-6">
               <CheckCircle className="w-8 h-8 text-white" />
             </div>
-            <h2 className="text-2xl font-bold text-gray-800 mb-2">Break Complete!</h2>
-            <p className="text-gray-600 mb-6">Ready to get back to work? 🎯</p>
+            <h2 className={`text-2xl font-bold mb-2 ${
+              settings.darkMode ? 'text-gray-200' : 'text-gray-800'
+            }`}>Break Complete!</h2>
+            <p className={`mb-6 ${
+              settings.darkMode ? 'text-gray-400' : 'text-gray-600'
+            }`}>Ready to get back to work? 🎯</p>
             <div className="flex space-x-3">
               <button
                 onClick={sendToBubble}
@@ -678,7 +816,11 @@ function App() {
                   setShowSuccess(false);
                   // Don't reset task, user might want to continue with same task
                 }}
-                className="flex-1 px-4 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-all duration-200"
+                className={`flex-1 px-4 py-3 rounded-xl transition-all duration-200 ${
+                  settings.darkMode 
+                    ? 'bg-gray-700 text-gray-300 hover:bg-gray-600' 
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
               >
                 Start New Focus
               </button>
@@ -715,13 +857,23 @@ function SettingsModal({ settings, onSave, onClose }: SettingsModalProps) {
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-3xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
-        <div className="p-6 border-b border-gray-200">
+      <div className={`rounded-3xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto transition-colors duration-300 ${
+        settings.darkMode ? 'bg-gray-800' : 'bg-white'
+      }`}>
+        <div className={`p-6 border-b ${
+          settings.darkMode ? 'border-gray-700' : 'border-gray-200'
+        }`}>
           <div className="flex items-center justify-between">
-            <h2 className="text-xl font-bold text-gray-800">Settings</h2>
+            <h2 className={`text-xl font-bold ${
+              settings.darkMode ? 'text-gray-200' : 'text-gray-800'
+            }`}>Settings</h2>
             <button
               onClick={onClose}
-              className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-all duration-200"
+              className={`p-2 rounded-lg transition-all duration-200 ${
+                settings.darkMode 
+                  ? 'text-gray-400 hover:text-gray-200 hover:bg-gray-700' 
+                  : 'text-gray-400 hover:text-gray-600 hover:bg-gray-100'
+              }`}
             >
               ×
             </button>
@@ -731,10 +883,14 @@ function SettingsModal({ settings, onSave, onClose }: SettingsModalProps) {
         <div className="p-6 space-y-6">
           {/* Timer Settings */}
           <div>
-            <h3 className="text-lg font-semibold text-gray-800 mb-4">Timer Duration</h3>
+            <h3 className={`text-lg font-semibold mb-4 ${
+              settings.darkMode ? 'text-gray-200' : 'text-gray-800'
+            }`}>Timer Duration</h3>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className={`block text-sm font-medium mb-2 ${
+                  settings.darkMode ? 'text-gray-300' : 'text-gray-700'
+                }`}>
                   Focus Time (minutes)
                 </label>
                 <input
@@ -746,11 +902,17 @@ function SettingsModal({ settings, onSave, onClose }: SettingsModalProps) {
                     ...prev,
                     workMinutes: parseInt(e.target.value) || 25
                   }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors duration-200 ${
+                    settings.darkMode 
+                      ? 'bg-gray-700 border-gray-600 text-gray-200' 
+                      : 'bg-white border-gray-300 text-gray-900'
+                  }`}
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className={`block text-sm font-medium mb-2 ${
+                  settings.darkMode ? 'text-gray-300' : 'text-gray-700'
+                }`}>
                   Break Time (minutes)
                 </label>
                 <input
@@ -762,7 +924,11 @@ function SettingsModal({ settings, onSave, onClose }: SettingsModalProps) {
                     ...prev,
                     breakMinutes: parseInt(e.target.value) || 5
                   }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors duration-200 ${
+                    settings.darkMode 
+                      ? 'bg-gray-700 border-gray-600 text-gray-200' 
+                      : 'bg-white border-gray-300 text-gray-900'
+                  }`}
                 />
               </div>
             </div>
@@ -770,9 +936,13 @@ function SettingsModal({ settings, onSave, onClose }: SettingsModalProps) {
 
           {/* Bubble.io Integration */}
           <div>
-            <h3 className="text-lg font-semibold text-gray-800 mb-4">Bubble.io Integration</h3>
+            <h3 className={`text-lg font-semibold mb-4 ${
+              settings.darkMode ? 'text-gray-200' : 'text-gray-800'
+            }`}>Bubble.io Integration</h3>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className={`block text-sm font-medium mb-2 ${
+                settings.darkMode ? 'text-gray-300' : 'text-gray-700'
+              }`}>
                 Your Bubble App URL
               </label>
               <input
@@ -783,9 +953,15 @@ function SettingsModal({ settings, onSave, onClose }: SettingsModalProps) {
                   bubbleUrl: e.target.value
                 }))}
                 placeholder="https://your-app.bubbleapps.io/version-test/task_manager"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors duration-200 ${
+                  settings.darkMode 
+                    ? 'bg-gray-700 border-gray-600 text-gray-200 placeholder-gray-400' 
+                    : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+                }`}
               />
-              <p className="text-xs text-gray-500 mt-1">
+              <p className={`text-xs mt-1 ${
+                settings.darkMode ? 'text-gray-400' : 'text-gray-500'
+              }`}>
                 This is where your session data will be sent
               </p>
             </div>
@@ -793,8 +969,24 @@ function SettingsModal({ settings, onSave, onClose }: SettingsModalProps) {
 
           {/* Preferences */}
           <div>
-            <h3 className="text-lg font-semibold text-gray-800 mb-4">Preferences</h3>
+            <h3 className={`text-lg font-semibold mb-4 ${
+              settings.darkMode ? 'text-gray-200' : 'text-gray-800'
+            }`}>Preferences</h3>
             <div className="space-y-3">
+              <label className="flex items-center space-x-3">
+                <input
+                  type="checkbox"
+                  checked={localSettings.darkMode}
+                  onChange={(e) => setLocalSettings(prev => ({
+                    ...prev,
+                    darkMode: e.target.checked
+                  }))}
+                  className="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                />
+                <span className={`text-sm ${
+                  settings.darkMode ? 'text-gray-300' : 'text-gray-700'
+                }`}>Dark mode</span>
+              </label>
               <label className="flex items-center space-x-3">
                 <input
                   type="checkbox"
@@ -805,7 +997,9 @@ function SettingsModal({ settings, onSave, onClose }: SettingsModalProps) {
                   }))}
                   className="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
                 />
-                <span className="text-sm text-gray-700">Play completion sound</span>
+                <span className={`text-sm ${
+                  settings.darkMode ? 'text-gray-300' : 'text-gray-700'
+                }`}>Play completion sound</span>
               </label>
               <label className="flex items-center space-x-3">
                 <input
@@ -817,16 +1011,24 @@ function SettingsModal({ settings, onSave, onClose }: SettingsModalProps) {
                   }))}
                   className="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
                 />
-                <span className="text-sm text-gray-700">Show browser notifications</span>
+                <span className={`text-sm ${
+                  settings.darkMode ? 'text-gray-300' : 'text-gray-700'
+                }`}>Show browser notifications</span>
               </label>
             </div>
           </div>
         </div>
 
-        <div className="p-6 border-t border-gray-200 flex justify-end space-x-3">
+        <div className={`p-6 border-t flex justify-end space-x-3 ${
+          settings.darkMode ? 'border-gray-700' : 'border-gray-200'
+        }`}>
           <button
             onClick={onClose}
-            className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-all duration-200"
+            className={`px-4 py-2 rounded-lg transition-all duration-200 ${
+              settings.darkMode 
+                ? 'text-gray-300 bg-gray-700 hover:bg-gray-600' 
+                : 'text-gray-700 bg-gray-100 hover:bg-gray-200'
+            }`}
           >
             Cancel
           </button>
