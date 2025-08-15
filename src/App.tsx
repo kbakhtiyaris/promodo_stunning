@@ -179,6 +179,10 @@ function App() {
     setSessionStartTime(null);
     setShowSuccess(false);
     setIsBreakTime(false);
+    
+    // Reset quote to work mode
+    const workQuotes = MOTIVATIONAL_QUOTES.work;
+    setCurrentQuote(workQuotes[Math.floor(Math.random() * workQuotes.length)]);
   };
 
   const completeSession = () => {
@@ -188,26 +192,49 @@ function App() {
       setTimer(null);
     }
 
-    const session: PomodoroSession = {
-      id: Date.now().toString(),
-      taskName: currentTask,
-      workMinutes: settings.workMinutes,
-      breakMinutes: settings.breakMinutes,
-      startTime: sessionStartTime || new Date().toISOString(),
-      endTime: new Date().toISOString(),
-      date: new Date().toISOString().split('T')[0],
-      userId
-    };
+    if (!isBreakTime) {
+      // Completed a focus session, save it and start break
+      const session: PomodoroSession = {
+        id: Date.now().toString(),
+        taskName: currentTask,
+        workMinutes: settings.workMinutes,
+        breakMinutes: settings.breakMinutes,
+        startTime: sessionStartTime || new Date().toISOString(),
+        endTime: new Date().toISOString(),
+        date: new Date().toISOString().split('T')[0],
+        userId
+      };
 
-    const newSessions = [...sessions, session];
-    setSessions(newSessions);
-    localStorage.setItem('focusflow_sessions', JSON.stringify(newSessions));
+      const newSessions = [...sessions, session];
+      setSessions(newSessions);
+      localStorage.setItem('focusflow_sessions', JSON.stringify(newSessions));
 
-    setShowSuccess(true);
+      // Start break time
+      setIsBreakTime(true);
+      setTimeLeft(settings.breakMinutes * 60);
+      setTotalTime(settings.breakMinutes * 60);
+      setSessionStartTime(new Date().toISOString());
+      setIsRunning(true);
+      
+      // Update quote for break time
+      const breakQuotes = MOTIVATIONAL_QUOTES.break;
+      setCurrentQuote(breakQuotes[Math.floor(Math.random() * breakQuotes.length)]);
+    } else {
+      // Completed a break, show success modal
+      setIsBreakTime(false);
+      setShowSuccess(true);
+      setTimeLeft(settings.workMinutes * 60);
+      setTotalTime(settings.workMinutes * 60);
+      setSessionStartTime(null);
+      
+      // Update quote for work time
+      const workQuotes = MOTIVATIONAL_QUOTES.work;
+      setCurrentQuote(workQuotes[Math.floor(Math.random() * workQuotes.length)]);
+    }
     
     if (settings.notificationsEnabled && 'Notification' in window && Notification.permission === 'granted') {
-      new Notification('Focus Session Complete! 🎉', {
-        body: `Great work on "${currentTask}"!`,
+      new Notification(isBreakTime ? 'Break Complete! 🎯' : 'Focus Session Complete! 🎉', {
+        body: isBreakTime ? 'Time to get back to work!' : `Great work on "${currentTask}"! Time for a break.`,
       });
     }
 
@@ -276,7 +303,7 @@ function App() {
       workMinutes: preset.work,
       breakMinutes: preset.break
     }));
-    if (!isRunning) {
+    if (!isRunning && !isBreakTime) {
       setTimeLeft(preset.work * 60);
       setTotalTime(preset.work * 60);
     }
@@ -285,7 +312,7 @@ function App() {
   const saveSettings = (newSettings: Settings) => {
     setSettings(newSettings);
     localStorage.setItem('focusflow_settings', JSON.stringify(newSettings));
-    if (!isRunning) {
+    if (!isRunning && !isBreakTime) {
       setTimeLeft(newSettings.workMinutes * 60);
       setTotalTime(newSettings.workMinutes * 60);
     }
@@ -378,6 +405,12 @@ function App() {
                     <div className="text-sm text-gray-500 uppercase tracking-wide">
                       {isBreakTime ? 'Break Time' : 'Focus Time'}
                     </div>
+                    {isBreakTime && (
+                      <div className="flex items-center mt-2 text-xs text-orange-600">
+                        <Coffee className="w-3 h-3 mr-1" />
+                        <span>Take a breather!</span>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -386,10 +419,14 @@ function App() {
                 {!isRunning ? (
                   <button
                     onClick={startTimer}
-                    className="flex items-center space-x-2 px-8 py-4 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-2xl hover:from-green-600 hover:to-emerald-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+                    className={`flex items-center space-x-2 px-8 py-4 text-white rounded-2xl transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-1 ${
+                      isBreakTime 
+                        ? 'bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700' 
+                        : 'bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700'
+                    }`}
                   >
                     <Play className="w-5 h-5" />
-                    <span className="font-semibold">Start Focus</span>
+                    <span className="font-semibold">{isBreakTime ? 'Start Break' : 'Start Focus'}</span>
                   </button>
                 ) : (
                   <button
@@ -412,20 +449,22 @@ function App() {
               {/* Task Input */}
               <div className="mb-8">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  What are you working on?
+                  {isBreakTime ? 'Break Activity (optional)' : 'What are you working on?'}
                 </label>
                 <input
                   type="text"
                   value={currentTask}
                   onChange={(e) => setCurrentTask(e.target.value)}
-                  placeholder="Enter your task or goal..."
+                  placeholder={isBreakTime ? 'Take a walk, stretch, hydrate...' : 'Enter your task or goal...'}
                   className="w-full px-4 py-3 bg-white/50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200"
                   maxLength={100}
+                  disabled={isBreakTime}
                 />
               </div>
 
               {/* Presets */}
-              <div>
+              {!isBreakTime && (
+              <div className="mb-8">
                 <h3 className="text-lg font-semibold text-gray-800 mb-4">Quick Presets</h3>
                 <div className="grid grid-cols-3 gap-4">
                   {PRESETS.map((preset) => {
@@ -434,7 +473,8 @@ function App() {
                       <button
                         key={preset.name}
                         onClick={() => applyPreset(preset)}
-                        className="p-4 bg-white/50 border border-gray-200 rounded-xl hover:bg-white/80 hover:border-indigo-300 transition-all duration-200 group"
+                        className="p-4 bg-white/50 border border-gray-200 rounded-xl hover:bg-white/80 hover:border-indigo-300 transition-all duration-200 group disabled:opacity-50 disabled:cursor-not-allowed"
+                        disabled={isRunning}
                       >
                         <Icon className="w-6 h-6 text-indigo-600 mx-auto mb-2 group-hover:scale-110 transition-transform duration-200" />
                         <div className="text-sm font-medium text-gray-800">{preset.name}</div>
@@ -444,12 +484,19 @@ function App() {
                   })}
                 </div>
               </div>
+              )}
             </div>
 
             {/* Quote Section */}
-            <div className="bg-gradient-to-r from-indigo-500/10 to-purple-500/10 backdrop-blur-md rounded-2xl p-6 border border-indigo-200/50">
+            <div className={`backdrop-blur-md rounded-2xl p-6 border ${
+              isBreakTime 
+                ? 'bg-gradient-to-r from-orange-500/10 to-amber-500/10 border-orange-200/50' 
+                : 'bg-gradient-to-r from-indigo-500/10 to-purple-500/10 border-indigo-200/50'
+            }`}>
               <div className="flex items-start space-x-4">
-                <Sparkles className="w-6 h-6 text-indigo-600 mt-1 flex-shrink-0" />
+                <Sparkles className={`w-6 h-6 mt-1 flex-shrink-0 ${
+                  isBreakTime ? 'text-orange-600' : 'text-indigo-600'
+                }`} />
                 <div>
                   <p className="text-gray-700 italic text-lg leading-relaxed">"{currentQuote}"</p>
                 </div>
@@ -529,8 +576,8 @@ function App() {
             <div className="w-16 h-16 bg-gradient-to-r from-green-500 to-emerald-600 rounded-full flex items-center justify-center mx-auto mb-6">
               <CheckCircle className="w-8 h-8 text-white" />
             </div>
-            <h2 className="text-2xl font-bold text-gray-800 mb-2">Session Complete!</h2>
-            <p className="text-gray-600 mb-6">Great work on "{currentTask}"! 🎉</p>
+            <h2 className="text-2xl font-bold text-gray-800 mb-2">Break Complete!</h2>
+            <p className="text-gray-600 mb-6">Ready to get back to work? 🎯</p>
             <div className="flex space-x-3">
               <button
                 onClick={sendToBubble}
@@ -542,12 +589,11 @@ function App() {
               <button
                 onClick={() => {
                   setShowSuccess(false);
-                  setCurrentTask('');
-                  resetTimer();
+                  // Don't reset task, user might want to continue with same task
                 }}
                 className="flex-1 px-4 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-all duration-200"
               >
-                New Session
+                Start New Focus
               </button>
             </div>
           </div>
