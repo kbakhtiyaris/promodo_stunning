@@ -323,18 +323,38 @@ function App() {
 
   const sendToBubble = () => {
     const todaysStats = getTodaysStats();
-    const params = new URLSearchParams({
-      task_name: currentTask,
+    
+    // Get the most recent completed session or create current session data
+    const sessionData = {
+      task_name: currentTask.trim() || 'Untitled Task',
       work_time: settings.workMinutes.toString(),
       break_time: settings.breakMinutes.toString(),
-      session_start: sessionStartTime || '',
+      session_start: sessionStartTime || new Date().toISOString(),
       session_end: new Date().toISOString(),
       user_id: userId,
       total_focus_time: todaysStats.totalMinutes.toString(),
-      session_count: todaysStats.sessionCount.toString()
+      session_count: todaysStats.sessionCount.toString(),
+      current_streak: streakData.currentStreak.toString(),
+      date: new Date().toISOString().split('T')[0]
+    };
+
+    console.log('Sending data to Bubble:', sessionData);
+    
+    const params = new URLSearchParams({
+      task_name: sessionData.task_name,
+      work_time: sessionData.work_time,
+      break_time: sessionData.break_time,
+      session_start: sessionData.session_start,
+      session_end: sessionData.session_end,
+      user_id: sessionData.user_id,
+      total_focus_time: sessionData.total_focus_time,
+      session_count: sessionData.session_count,
+      current_streak: sessionData.current_streak,
+      date: sessionData.date
     });
 
     const fullUrl = `${settings.bubbleUrl}?${params.toString()}`;
+    console.log('Full Bubble URL:', fullUrl);
     window.open(fullUrl, '_blank');
   };
 
@@ -413,7 +433,7 @@ function App() {
                 className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-lg hover:from-indigo-600 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
               >
                 <ExternalLink className="w-4 h-4" />
-                <span className="text-sm font-medium">Open Bubble App</span>
+                <span className="text-sm font-medium">Send to Bubble</span>
               </button>
             </div>
           </div>
@@ -601,6 +621,15 @@ function App() {
                 <Calendar className="w-5 h-5 text-indigo-600 mr-2" />
                 Recent Sessions
               </h3>
+              <div className="mb-4">
+                <button
+                  onClick={sendToBubble}
+                  className="w-full flex items-center justify-center space-x-2 px-4 py-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-lg hover:from-indigo-600 hover:to-purple-700 transition-all duration-200 text-sm"
+                >
+                  <ExternalLink className="w-4 h-4" />
+                  <span>View in Bubble App</span>
+                </button>
+              </div>
               <div className="space-y-3">
                 {sessions.slice(-3).reverse().map((session) => (
                   <div key={session.id} className="flex items-center justify-between p-3 bg-gray-50/50 rounded-xl">
