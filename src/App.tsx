@@ -935,39 +935,6 @@ function SettingsModal({ settings, onSave, onClose }: SettingsModalProps) {
             </div>
           </div>
 
-          {/* Bubble.io Integration */}
-          <div>
-            <h3 className={`text-lg font-semibold mb-4 ${
-              settings.darkMode ? 'text-gray-200' : 'text-gray-800'
-            }`}>Bubble.io Integration</h3>
-            <div>
-              <label className={`block text-sm font-medium mb-2 ${
-                settings.darkMode ? 'text-gray-300' : 'text-gray-700'
-              }`}>
-                Your Bubble App URL
-              </label>
-              <input
-                type="url"
-                value={localSettings.bubbleUrl}
-                onChange={(e) => setLocalSettings(prev => ({
-                  ...prev,
-                  bubbleUrl: e.target.value
-                }))}
-                placeholder="https://your-app.bubbleapps.io/version-test/task_manager"
-                className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors duration-200 ${
-                  settings.darkMode 
-                    ? 'bg-gray-700 border-gray-600 text-gray-200 placeholder-gray-400' 
-                    : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
-                }`}
-              />
-              <p className={`text-xs mt-1 ${
-                settings.darkMode ? 'text-gray-400' : 'text-gray-500'
-              }`}>
-                This is where your session data will be sent
-              </p>
-            </div>
-          </div>
-
           {/* Preferences */}
           <div>
             <h3 className={`text-lg font-semibold mb-4 ${
