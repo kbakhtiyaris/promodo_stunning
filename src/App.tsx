@@ -432,48 +432,49 @@ function App() {
           ? 'bg-gray-900/80 border-gray-700/50' 
           : 'bg-white/80 border-gray-200/50'
       }`}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
+        <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8">
+          <div className="flex justify-between items-center h-14 sm:h-16">
             <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center">
-                <Timer className="w-6 h-6 text-white" />
+              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center flex-shrink-0">
+                <Timer className="w-4 h-4 sm:w-6 sm:h-6 text-white" />
               </div>
-              <div>
+              <div className="min-w-0 flex-1">
                 <h1 className={`text-xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent`}>
                   Focus Flow
                 </h1>
-                <p className={`text-xs ${settings.darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                <p className={`text-xs hidden sm:block ${settings.darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                   Productivity Timer
                 </p>
               </div>
             </div>
-            <div className="flex items-center space-x-3">
+            <div className="flex items-center space-x-2 sm:space-x-3">
               <button
                 onClick={toggleDarkMode}
-                className={`p-2 rounded-lg transition-all duration-200 ${
+                className={`p-1.5 sm:p-2 rounded-lg transition-all duration-200 ${
                   settings.darkMode 
                     ? 'text-gray-300 hover:text-yellow-400 hover:bg-gray-800' 
                     : 'text-gray-600 hover:text-indigo-600 hover:bg-indigo-50'
                 }`}
               >
-                {settings.darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+                {settings.darkMode ? <Sun className="w-4 h-4 sm:w-5 sm:h-5" /> : <Moon className="w-4 h-4 sm:w-5 sm:h-5" />}
               </button>
               <button
                 onClick={() => setShowSettings(true)}
-                className={`p-2 rounded-lg transition-all duration-200 ${
+                className={`p-1.5 sm:p-2 rounded-lg transition-all duration-200 ${
                   settings.darkMode 
                     ? 'text-gray-300 hover:text-indigo-400 hover:bg-gray-800' 
                     : 'text-gray-600 hover:text-indigo-600 hover:bg-indigo-50'
                 }`}
               >
-                <Settings className="w-5 h-5" />
+                <Settings className="w-4 h-4 sm:w-5 sm:h-5" />
               </button>
               <button
                 onClick={sendToBubble}
-                className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-lg hover:from-indigo-600 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                className="flex items-center space-x-1 sm:space-x-2 px-2 sm:px-4 py-1.5 sm:py-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-lg hover:from-indigo-600 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 mr-1"
               >
-                <ExternalLink className="w-4 h-4" />
-                <span className="text-sm font-medium">Send to Bubble</span>
+                <ExternalLink className="w-3 h-3 sm:w-4 sm:h-4" />
+                <span className="text-xs sm:text-sm font-medium hidden xs:inline">Send to Bubble</span>
+                <span className="text-xs sm:text-sm font-medium xs:hidden">Send</span>
               </button>
             </div>
           </div>
