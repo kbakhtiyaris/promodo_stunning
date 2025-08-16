@@ -482,6 +482,30 @@ function App() {
       </header>
 
       <main className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Quote Section - Below Navigation */}
+        <div className={`backdrop-blur-md rounded-2xl p-4 sm:p-6 border mb-6 sm:mb-8 ${
+          isBreakTime 
+            ? settings.darkMode 
+              ? 'bg-gradient-to-r from-orange-500/20 to-amber-500/20 border-orange-400/30' 
+              : 'bg-gradient-to-r from-orange-500/10 to-amber-500/10 border-orange-200/50'
+            : settings.darkMode 
+              ? 'bg-gradient-to-r from-indigo-500/20 to-purple-500/20 border-indigo-400/30' 
+              : 'bg-gradient-to-r from-indigo-500/10 to-purple-500/10 border-indigo-200/50'
+        }`}>
+          <div className="flex items-start space-x-3 sm:space-x-4">
+            <Sparkles className={`w-5 h-5 sm:w-6 sm:h-6 mt-1 flex-shrink-0 ${
+              isBreakTime 
+                ? settings.darkMode ? 'text-orange-400' : 'text-orange-600'
+                : settings.darkMode ? 'text-indigo-400' : 'text-indigo-600'
+            }`} />
+            <div>
+              <p className={`italic text-base sm:text-lg leading-relaxed ${
+                settings.darkMode ? 'text-gray-300' : 'text-gray-700'
+              }`}>"{currentQuote}"</p>
+            </div>
+          </div>
+        </div>
+
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Timer Section */}
           <div className="lg:col-span-2">
@@ -492,7 +516,7 @@ function App() {
             }`}>
               <div className="text-center mb-8">
                 <div className="relative inline-block">
-                  <svg className="w-64 h-64 transform -rotate-90" viewBox="0 0 180 180">
+                  <svg className="w-48 h-48 sm:w-64 sm:h-64 transform -rotate-90" viewBox="0 0 180 180">
                     <circle
                       cx="90"
                       cy="90"
@@ -520,16 +544,16 @@ function App() {
                     </defs>
                   </svg>
                   <div className="absolute inset-0 flex flex-col items-center justify-center">
-                    <div className="text-5xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent mb-2">
+                    <div className="text-3xl sm:text-5xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent mb-1 sm:mb-2">
                       {formatTime(displayTime)}
                     </div>
-                    <div className={`text-sm uppercase tracking-wide ${
+                    <div className={`text-xs sm:text-sm uppercase tracking-wide ${
                       settings.darkMode ? 'text-gray-400' : 'text-gray-500'
                     }`}>
                       {isBreakTime ? 'Break Time' : 'Focus Time'}
                     </div>
                     {isBreakTime && (
-                      <div className={`flex items-center mt-2 text-xs ${
+                      <div className={`flex items-center mt-1 sm:mt-2 text-xs ${
                         settings.darkMode ? 'text-orange-400' : 'text-orange-600'
                       }`}>
                         <Coffee className="w-3 h-3 mr-1" />
@@ -540,43 +564,43 @@ function App() {
                 </div>
               </div>
 
-              <div className="flex justify-center space-x-4 mb-8">
+              <div className="flex justify-center space-x-3 sm:space-x-4 mb-6 sm:mb-8">
                 {!isRunning ? (
                   <button
                     onClick={startTimer}
-                    className={`flex items-center space-x-2 px-8 py-4 text-white rounded-2xl transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-1 ${
+                    className={`flex items-center space-x-2 px-4 sm:px-8 py-3 sm:py-4 text-white rounded-2xl transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-1 ${
                       isBreakTime 
                         ? 'bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700' 
                         : 'bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700'
                     }`}
                   >
-                    <Play className="w-5 h-5" />
-                    <span className="font-semibold">{isBreakTime ? 'Start Break' : 'Start Focus'}</span>
+                    <Play className="w-4 h-4 sm:w-5 sm:h-5" />
+                    <span className="font-semibold text-sm sm:text-base">{isBreakTime ? 'Start Break' : 'Start Focus'}</span>
                   </button>
                 ) : (
                   <button
                     onClick={pauseTimer}
-                    className="flex items-center space-x-2 px-8 py-4 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-2xl hover:from-orange-600 hover:to-red-600 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+                    className="flex items-center space-x-2 px-4 sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-2xl hover:from-orange-600 hover:to-red-600 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
                   >
-                    <Pause className="w-5 h-5" />
-                    <span className="font-semibold">Pause</span>
+                    <Pause className="w-4 h-4 sm:w-5 sm:h-5" />
+                    <span className="font-semibold text-sm sm:text-base">Pause</span>
                   </button>
                 )}
                 <button
                   onClick={resetTimer}
-                  className={`flex items-center space-x-2 px-6 py-4 rounded-2xl transition-all duration-200 ${
+                  className={`flex items-center space-x-2 px-3 sm:px-6 py-3 sm:py-4 rounded-2xl transition-all duration-200 ${
                     settings.darkMode 
                       ? 'bg-gray-700 text-gray-300 hover:bg-gray-600' 
                       : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                   }`}
                 >
-                  <RotateCcw className="w-5 h-5" />
-                  <span className="font-semibold">Reset</span>
+                  <RotateCcw className="w-4 h-4 sm:w-5 sm:h-5" />
+                  <span className="font-semibold text-sm sm:text-base">Reset</span>
                 </button>
               </div>
 
               {/* Task Input */}
-              <div className="mb-8">
+              <div className="mb-6 sm:mb-8">
                 <label className={`block text-sm font-medium mb-2 ${
                   settings.darkMode ? 'text-gray-300' : 'text-gray-700'
                 }`}>
@@ -599,61 +623,41 @@ function App() {
 
               {/* Presets */}
               {!isBreakTime && (
-              <div className="mb-8">
+              <div>
                 <h3 className={`text-lg font-semibold mb-4 ${
                   settings.darkMode ? 'text-gray-200' : 'text-gray-800'
                 }`}>Quick Presets</h3>
-                <div className="grid grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
                   {PRESETS.map((preset) => {
                     const Icon = preset.icon;
                     return (
                       <button
                         key={preset.name}
                         onClick={() => applyPreset(preset)}
-                        className={`p-4 border rounded-xl transition-all duration-200 group disabled:opacity-50 disabled:cursor-not-allowed ${
+                        className={`p-3 sm:p-4 border rounded-xl transition-all duration-200 group disabled:opacity-50 disabled:cursor-not-allowed ${
                           settings.darkMode 
                             ? 'bg-gray-700/50 border-gray-600 hover:bg-gray-700/80 hover:border-indigo-400' 
                             : 'bg-white/50 border-gray-200 hover:bg-white/80 hover:border-indigo-300'
                         }`}
                         disabled={isRunning}
                       >
-                        <Icon className="w-6 h-6 text-indigo-600 mx-auto mb-2 group-hover:scale-110 transition-transform duration-200" />
-                        <div className={`text-sm font-medium ${
-                          settings.darkMode ? 'text-gray-200' : 'text-gray-800'
-                        }`}>{preset.name}</div>
-                        <div className={`text-xs ${
-                          settings.darkMode ? 'text-gray-400' : 'text-gray-500'
-                        }`}>{preset.work}m / {preset.break}m</div>
+                        <div className="flex items-center sm:flex-col sm:text-center">
+                          <Icon className="w-5 h-5 sm:w-6 sm:h-6 text-indigo-600 mr-3 sm:mr-0 sm:mb-2 group-hover:scale-110 transition-transform duration-200 flex-shrink-0" />
+                          <div className="flex-1 sm:flex-none">
+                            <div className={`text-sm font-medium ${
+                              settings.darkMode ? 'text-gray-200' : 'text-gray-800'
+                            }`}>{preset.name}</div>
+                            <div className={`text-xs ${
+                              settings.darkMode ? 'text-gray-400' : 'text-gray-500'
+                            }`}>{preset.work}m / {preset.break}m</div>
+                          </div>
+                        </div>
                       </button>
                     );
                   })}
                 </div>
               </div>
               )}
-            </div>
-
-            {/* Quote Section */}
-            <div className={`backdrop-blur-md rounded-2xl p-6 border ${
-              isBreakTime 
-                ? settings.darkMode 
-                  ? 'bg-gradient-to-r from-orange-500/20 to-amber-500/20 border-orange-400/30' 
-                  : 'bg-gradient-to-r from-orange-500/10 to-amber-500/10 border-orange-200/50'
-                : settings.darkMode 
-                  ? 'bg-gradient-to-r from-indigo-500/20 to-purple-500/20 border-indigo-400/30' 
-                  : 'bg-gradient-to-r from-indigo-500/10 to-purple-500/10 border-indigo-200/50'
-            }`}>
-              <div className="flex items-start space-x-4">
-                <Sparkles className={`w-6 h-6 mt-1 flex-shrink-0 ${
-                  isBreakTime 
-                    ? settings.darkMode ? 'text-orange-400' : 'text-orange-600'
-                    : settings.darkMode ? 'text-indigo-400' : 'text-indigo-600'
-                }`} />
-                <div>
-                  <p className={`italic text-lg leading-relaxed ${
-                    settings.darkMode ? 'text-gray-300' : 'text-gray-700'
-                  }`}>"{currentQuote}"</p>
-                </div>
-              </div>
             </div>
           </div>
 
@@ -760,32 +764,33 @@ function App() {
                   }`}>
                     <div>
                       <div className={`text-sm font-medium truncate max-w-32 ${
-                        settings.darkMode ? 'text-gray-200' : 'text-gray-800'
-                      }`}>
-                        {session.taskName}
-                      </div>
-                      <div className={`text-xs ${
-                        settings.darkMode ? 'text-gray-400' : 'text-gray-500'
-                      }`}>
-                        {session.workMinutes} minutes
-                      </div>
-                    </div>
-                    <CheckCircle className={`w-5 h-5 ${
-                      settings.darkMode ? 'text-green-400' : 'text-green-500'
-                    }`} />
-                  </div>
-                ))}
-                {sessions.length === 0 && (
-                  <div className={`text-center py-8 ${
-                    settings.darkMode ? 'text-gray-400' : 'text-gray-500'
-                  }`}>
-                    <Target className="w-8 h-8 mx-auto mb-2 opacity-50" />
-                    <p className="text-sm">Complete your first session!</p>
-                  </div>
-                )}
+                          settings.darkMode ? 'text-gray-200' : 'text-gray-800'
+                        }`}>{preset.name}</div>
+                        <div className={`text-xs ${
+                          settings.darkMode ? 'text-gray-400' : 'text-gray-500'
+                        }`}>{preset.work}m / {preset.break}m</div>
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
+              )}
             </div>
-          </div>
+
+            {/* Quote Section */}
+            <div className={`backdrop-blur-md rounded-2xl p-6 border ${
+              isBreakTime 
+                ? settings.darkMode 
+                  ? 'bg-gradient-to-r from-orange-500/20 to-amber-500/20 border-orange-400/30' 
+                  : 'bg-gradient-to-r from-orange-500/10 to-amber-500/10 border-orange-200/50'
+                : settings.darkMode 
+                  ? 'bg-gradient-to-r from-indigo-500/20 to-purple-500/20 border-indigo-400/30' 
+                  : 'bg-gradient-to-r from-indigo-500/10 to-purple-500/10 border-indigo-200/50'
+            }`}>
+              <div className="flex items-start space-x-4">
+                <Sparkles className={`w-6 h-6 mt-1 flex-shrink-0 ${
+                    ? settings.darkMode ? 'text-orange-400' : 'text-orange-600'
+                }`} />
         </div>
       </main>
 
