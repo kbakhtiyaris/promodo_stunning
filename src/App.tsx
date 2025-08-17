@@ -205,7 +205,7 @@ function App() {
       date: today
     });
 
-    const bubbleUrl = `https://focusflow.bubbleapps.io/version-test/task_manager?${params.toString()}`;
+    const bubbleUrl = `https://task-51525.bubbleapps.io/version-test/?${params.toString()}`;
     
     console.log('Sending data to Bubble:', {
       task_name: taskName || 'Untitled Task',
