@@ -58,7 +58,7 @@ function App() {
 
   // Register service worker
   useEffect(() => {
-    if ('serviceWorker' in navigator) {
+    if ('serviceWorker' in navigator && !window.location.hostname.includes('stackblitz')) {
       navigator.serviceWorker.register('/sw.js')
         .then((registration) => {
           console.log('Service Worker registered:', registration);
@@ -71,10 +71,14 @@ function App() {
         .catch((error) => {
           console.error('Service Worker registration failed:', error);
         });
+    } else {
+      console.log('Service Worker not supported in this environment');
     }
     
     return () => {
-      navigator.serviceWorker.removeEventListener('message', handleServiceWorkerMessage);
+      if ('serviceWorker' in navigator && !window.location.hostname.includes('stackblitz')) {
+        navigator.serviceWorker.removeEventListener('message', handleServiceWorkerMessage);
+      }
     };
   }, []);
 
