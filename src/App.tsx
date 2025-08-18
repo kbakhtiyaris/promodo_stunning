@@ -17,6 +17,11 @@ interface Session {
   type: 'focus' | 'break';
 }
 
+interface DailyStats {
+  date: string;
+  sessions: number;
+  minutes: number;
+}
 const motivationalQuotes = [
   "The way to get started is to quit talking and begin doing. - Walt Disney",
   "Don't let yesterday take up too much of today. - Will Rogers",
@@ -37,6 +42,8 @@ function App() {
   const [currentQuote, setCurrentQuote] = useState(motivationalQuotes[0]);
   const [sessions, setSessions] = useState<Session[]>([]);
   const [sessionStartTime, setSessionStartTime] = useState<Date | null>(null);
+  const [dailyStats, setDailyStats] = useState<DailyStats[]>([]);
+  const [serviceWorkerRegistration, setServiceWorkerRegistration] = useState<ServiceWorkerRegistration | null>(null);
   const [settings, setSettings] = useState<TimerSettings>({
     focusTime: 25,
     breakTime: 5,
@@ -47,7 +54,56 @@ function App() {
 
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const serviceWorkerRef = useRef<ServiceWorker | null>(null);
 
+  // Register service worker
+  useEffect(() => {
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js')
+        .then((registration) => {
+          console.log('Service Worker registered:', registration);
+          setServiceWorkerRegistration(registration);
+          serviceWorkerRef.current = registration.active || registration.installing || registration.waiting;
+          
+          // Listen for messages from service worker
+          navigator.serviceWorker.addEventListener('message', handleServiceWorkerMessage);
+        })
+        .catch((error) => {
+          console.error('Service Worker registration failed:', error);
+        });
+    }
+    
+    return () => {
+      navigator.serviceWorker.removeEventListener('message', handleServiceWorkerMessage);
+    };
+  }, []);
+
+  const handleServiceWorkerMessage = (event: MessageEvent) => {
+    const { type, data } = event.data;
+    
+    switch (type) {
+      case 'TIMER_UPDATE':
+        setTimeLeft(data.timeLeft);
+        break;
+        
+      case 'TIMER_COMPLETE':
+        handleTimerCompleteFromSW(data);
+        break;
+        
+      case 'START_FROM_NOTIFICATION':
+        setIsActive(true);
+        setTimeLeft(data.timeLeft);
+        setIsBreak(data.isBreak);
+        setSessionStartTime(new Date(data.startTime));
+        break;
+    }
+  };
+
+  const sendMessageToServiceWorker = (type: string, data?: any) => {
+    if (serviceWorkerRef.current) {
+      serviceWorkerRef.current.postMessage({ type, data });
+    }
+  };
   // Load settings from localStorage
   useEffect(() => {
     const savedSettings = localStorage.getItem('focusFlowSettings');
@@ -59,30 +115,82 @@ function App() {
 
     const savedSessions = localStorage.getItem('focusFlowSessions');
     if (savedSessions) {
-      setSessions(JSON.parse(savedSessions).map((s: any) => ({
+      const parsedSessions = JSON.parse(savedSessions).map((s: any) => ({
         ...s,
         startTime: new Date(s.startTime),
         endTime: new Date(s.endTime)
-      })));
+      }));
+      setSessions(parsedSessions);
+      updateDailyStats(parsedSessions);
+    }
+
+    const savedDailyStats = localStorage.getItem('focusFlowDailyStats');
+    if (savedDailyStats) {
+      setDailyStats(JSON.parse(savedDailyStats));
     }
 
     // Set random quote on load
     setCurrentQuote(motivationalQuotes[Math.floor(Math.random() * motivationalQuotes.length)]);
+    
+    // Request notification permission
+    requestNotificationPermission();
+    
+    // Sync with service worker on load
+    setTimeout(() => {
+      if (serviceWorkerRef.current) {
+        const channel = new MessageChannel();
+        channel.port1.onmessage = (event) => {
+          if (event.data.type === 'STATE_UPDATE') {
+            const swState = event.data.data;
+            if (swState.isActive) {
+              setIsActive(swState.isActive);
+              setTimeLeft(swState.timeLeft);
+              setIsBreak(swState.isBreak);
+              setTaskName(swState.taskName);
+              if (swState.startTime) {
+                setSessionStartTime(new Date(swState.startTime));
+              }
+            }
+          }
+        };
+        serviceWorkerRef.current.postMessage({ type: 'GET_STATE' }, [channel.port2]);
+      }
+    }, 1000);
   }, []);
 
+  const updateDailyStats = (sessionList: Session[]) => {
+    const statsMap = new Map<string, DailyStats>();
+    
+    sessionList.filter(s => s.type === 'focus').forEach(session => {
+      const date = session.startTime.toISOString().split('T')[0];
+      const existing = statsMap.get(date) || { date, sessions: 0, minutes: 0 };
+      existing.sessions += 1;
+      existing.minutes += session.duration;
+      statsMap.set(date, existing);
+    });
+    
+    const statsArray = Array.from(statsMap.values()).sort((a, b) => b.date.localeCompare(a.date));
+    setDailyStats(statsArray);
+    localStorage.setItem('focusFlowDailyStats', JSON.stringify(statsArray));
+  };
   // Save settings to localStorage
   useEffect(() => {
     localStorage.setItem('focusFlowSettings', JSON.stringify(settings));
+    
+    // Update service worker with new settings
+    sendMessageToServiceWorker('UPDATE_STATE', { settings });
   }, [settings]);
 
   // Save sessions to localStorage
   useEffect(() => {
     localStorage.setItem('focusFlowSessions', JSON.stringify(sessions));
+    updateDailyStats(sessions);
   }, [sessions]);
 
   // Timer logic
   useEffect(() => {
-    if (isActive && timeLeft > 0) {
+    if (isActive && timeLeft > 0 && !serviceWorkerRef.current) {
+      // Only run main thread timer if service worker is not available
       intervalRef.current = setInterval(() => {
         setTimeLeft(timeLeft => timeLeft - 1);
       }, 1000);
@@ -101,6 +209,27 @@ function App() {
     };
   }, [isActive, timeLeft]);
 
+  const handleTimerCompleteFromSW = (data: any) => {
+    const session: Session = {
+      taskName: data.taskName || 'Untitled Task',
+      duration: data.duration,
+      startTime: new Date(data.startTime),
+      endTime: new Date(data.endTime),
+      type: data.wasBreak ? 'break' : 'focus'
+    };
+    
+    setSessions(prev => [session, ...prev]);
+    setIsBreak(data.isBreak);
+    setTimeLeft(data.timeLeft);
+    setIsActive(false);
+    setSessionStartTime(null);
+    
+    if (settings.soundEnabled) {
+      playNotificationSound();
+    }
+    
+    setCurrentQuote(motivationalQuotes[Math.floor(Math.random() * motivationalQuotes.length)]);
+  };
   const handleTimerComplete = () => {
     setIsActive(false);
     
@@ -120,37 +249,85 @@ function App() {
       playNotificationSound();
     }
 
-    if (settings.notificationsEnabled && 'Notification' in window) {
+    if (settings.notificationsEnabled && 'Notification' in window && Notification.permission === 'granted') {
       new Notification(isBreak ? 'Break time is over!' : 'Focus session complete!', {
         body: isBreak ? 'Time to get back to work!' : 'Take a well-deserved break!',
-        icon: '/favicon.ico'
+        icon: '/vite.svg',
+        tag: 'pomodoro-timer'
       });
     }
 
     // Switch between focus and break
     setIsBreak(!isBreak);
     setTimeLeft(isBreak ? settings.focusTime * 60 : settings.breakTime * 60);
+    setSessionStartTime(null);
     setCurrentQuote(motivationalQuotes[Math.floor(Math.random() * motivationalQuotes.length)]);
   };
 
   const playNotificationSound = () => {
     if (!audioRef.current) {
-      audioRef.current = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYIG2m98OScTgwOUarm7blmGgU7k9n1unEiBC13yO/eizEIHWq+8+OWT');
+      // Create a simple beep sound using Web Audio API
+      const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const oscillator = audioContext.createOscillator();
+      const gainNode = audioContext.createGain();
+      
+      oscillator.connect(gainNode);
+      gainNode.connect(audioContext.destination);
+      
+      oscillator.frequency.value = 800;
+      oscillator.type = 'sine';
+      
+      gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+      
+      oscillator.start(audioContext.currentTime);
+      oscillator.stop(audioContext.currentTime + 0.5);
+      return;
     }
     audioRef.current.play().catch(() => {});
   };
 
   const toggleTimer = () => {
-    if (!isActive && !sessionStartTime) {
-      setSessionStartTime(new Date());
+    const newIsActive = !isActive;
+    setIsActive(newIsActive);
+    
+    if (newIsActive) {
+      if (!sessionStartTime) {
+        const startTime = new Date();
+        setSessionStartTime(startTime);
+        
+        // Send state to service worker
+        sendMessageToServiceWorker('START_TIMER', {
+          timeLeft,
+          isBreak,
+          taskName,
+          startTime: startTime.toISOString(),
+          settings
+        });
+      } else {
+        // Resume timer
+        sendMessageToServiceWorker('START_TIMER', {
+          timeLeft,
+          isBreak,
+          taskName,
+          startTime: sessionStartTime.toISOString(),
+          settings
+        });
+      }
+    } else {
+      // Pause timer
+      sendMessageToServiceWorker('PAUSE_TIMER');
     }
-    setIsActive(!isActive);
   };
 
   const resetTimer = () => {
     setIsActive(false);
-    setTimeLeft(isBreak ? settings.breakTime * 60 : settings.focusTime * 60);
+    const newTimeLeft = isBreak ? settings.breakTime * 60 : settings.focusTime * 60;
+    setTimeLeft(newTimeLeft);
     setSessionStartTime(null);
+    
+    // Reset service worker timer
+    sendMessageToServiceWorker('RESET_TIMER', { timeLeft: newTimeLeft });
   };
 
   const formatTime = (seconds: number) => {
@@ -163,24 +340,21 @@ function App() {
     setTimeLeft(minutes * 60);
     setIsActive(false);
     setSessionStartTime(null);
+    sendMessageToServiceWorker('RESET_TIMER', { timeLeft: minutes * 60 });
   };
 
   const sendToBubble = () => {
-    const today = new Date().toISOString().split('T')[0];
-    const todaySessions = sessions.filter(s => 
-      s.startTime.toISOString().split('T')[0] === today && s.type === 'focus'
-    );
+    const todayStats = getTodayStats();
     
-    const totalFocusTime = todaySessions.reduce((sum, s) => sum + s.duration, 0);
-    const sessionCount = todaySessions.length;
+    const totalFocusTime = todayStats.minutes;
+    const sessionCount = todayStats.sessions;
     
     // Calculate current streak
     let currentStreak = 0;
-    const dates = [...new Set(sessions.filter(s => s.type === 'focus').map(s => s.startTime.toISOString().split('T')[0]))].sort().reverse();
-    const today_date = new Date().toISOString().split('T')[0];
+    const sortedStats = dailyStats.sort((a, b) => b.date.localeCompare(a.date));
     
-    for (let i = 0; i < dates.length; i++) {
-      const date = new Date(dates[i]);
+    for (let i = 0; i < sortedStats.length; i++) {
+      const date = new Date(sortedStats[i].date);
       const expectedDate = new Date();
       expectedDate.setDate(expectedDate.getDate() - i);
       
@@ -191,7 +365,12 @@ function App() {
       }
     }
 
+    const today = new Date().toISOString().split('T')[0];
+    const todaySessions = sessions.filter(s => 
+      s.startTime.toISOString().split('T')[0] === today && s.type === 'focus'
+    );
     const lastSession = todaySessions[0];
+    
     const params = new URLSearchParams({
       task_name: taskName || 'Untitled Task',
       work_time: settings.focusTime.toString(),
@@ -226,26 +405,23 @@ function App() {
 
   const requestNotificationPermission = async () => {
     if ('Notification' in window && Notification.permission === 'default') {
-      await Notification.requestPermission();
+      const permission = await Notification.requestPermission();
+      if (permission === 'granted') {
+        console.log('Notification permission granted');
+      }
     }
   };
 
-  useEffect(() => {
-    requestNotificationPermission();
-  }, []);
 
   const progress = ((isBreak ? settings.breakTime * 60 : settings.focusTime * 60) - timeLeft) / (isBreak ? settings.breakTime * 60 : settings.focusTime * 60) * 100;
 
-  const todayStats = () => {
+  const getTodayStats = () => {
     const today = new Date().toISOString().split('T')[0];
-    const todaySessions = sessions.filter(s => 
-      s.startTime.toISOString().split('T')[0] === today && s.type === 'focus'
-    );
-    const totalMinutes = todaySessions.reduce((sum, s) => sum + s.duration, 0);
-    return { sessions: todaySessions.length, minutes: totalMinutes };
+    const todayStats = dailyStats.find(stat => stat.date === today);
+    return todayStats || { sessions: 0, minutes: 0 };
   };
 
-  const stats = todayStats();
+  const stats = getTodayStats();
 
   return (
     <div className={`min-h-screen transition-colors duration-300 ${settings.darkMode ? 'bg-gray-900' : 'bg-gradient-to-br from-indigo-50 via-white to-cyan-50'}`}>
