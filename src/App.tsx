@@ -237,8 +237,8 @@ function App() {
 
   // Timer logic
   useEffect(() => {
-    if (isActive && timeLeft > 0 && (!serviceWorkerRef.current || !isServiceWorkerSupported())) {
-      // Only run main thread timer if service worker is not available
+    if (isActive && timeLeft > 0) {
+      // Always run main thread timer as backup, service worker will sync if available
       intervalRef.current = setInterval(() => {
         setTimeLeft(timeLeft => timeLeft - 1);
       }, 1000);
@@ -258,6 +258,10 @@ function App() {
   }, [isActive, timeLeft]);
 
   const handleTimerCompleteFromSW = (data: any) => {
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+    }
+    
     const session: Session = {
       taskName: data.taskName || 'Untitled Task',
       duration: data.duration,
@@ -279,6 +283,10 @@ function App() {
     setCurrentQuote(motivationalQuotes[Math.floor(Math.random() * motivationalQuotes.length)]);
   };
   const handleTimerComplete = () => {
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+    }
+    
     setIsActive(false);
     
     if (sessionStartTime) {
