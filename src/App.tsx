@@ -58,7 +58,7 @@ function App() {
 
   // Register service worker
   useEffect(() => {
-    if ('serviceWorker' in navigator && !window.location.hostname.includes('stackblitz') && !window.location.hostname.includes('webcontainer.io')) {
+    if ('serviceWorker' in navigator && !window.location.href.includes('stackblitz') && !window.location.href.includes('webcontainer.io')) {
       navigator.serviceWorker.register('/sw.js')
         .then((registration) => {
           console.log('Service Worker registered:', registration);
@@ -76,7 +76,7 @@ function App() {
     }
     
     return () => {
-      if ('serviceWorker' in navigator && !window.location.hostname.includes('stackblitz') && !window.location.hostname.includes('webcontainer.io')) {
+      if ('serviceWorker' in navigator && !window.location.href.includes('stackblitz') && !window.location.href.includes('webcontainer.io')) {
         navigator.serviceWorker.removeEventListener('message', handleServiceWorkerMessage);
       }
     };
