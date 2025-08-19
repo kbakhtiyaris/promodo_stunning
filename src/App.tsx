@@ -56,27 +56,62 @@ function App() {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const serviceWorkerRef = useRef<ServiceWorker | null>(null);
 
+  // Check if we're in a supported environment for Service Workers
+  const isServiceWorkerSupported = () => {
+    // Check if Service Workers are supported at all
+    if (!('serviceWorker' in navigator)) {
+      return false;
+    }
+    
+    // Check for development/unsupported environments
+    const hostname = window.location.hostname;
+    const href = window.location.href;
+    
+    // List of environments where Service Workers don't work or aren't needed
+    const unsupportedEnvironments = [
+      'stackblitz.com',
+      'webcontainer.io',
+      'localhost',
+      '127.0.0.1',
+      'codesandbox.io',
+      'codepen.io',
+      'jsfiddle.net'
+    ];
+    
+    // Check if current environment is in the unsupported list
+    const isUnsupported = unsupportedEnvironments.some(env => 
+      hostname.includes(env) || href.includes(env)
+    );
+    
+    return !isUnsupported;
+  };
+
   // Register service worker
   useEffect(() => {
-    if ('serviceWorker' in navigator && !window.location.hostname.includes('stackblitz') && !window.location.hostname.includes('webcontainer.io')) {
-      navigator.serviceWorker.register('/sw.js')
-        .then((registration) => {
-          console.log('Service Worker registered:', registration);
-          setServiceWorkerRegistration(registration);
-          serviceWorkerRef.current = registration.active || registration.installing || registration.waiting;
-          
-          // Listen for messages from service worker
-          navigator.serviceWorker.addEventListener('message', handleServiceWorkerMessage);
-        })
-        .catch((error) => {
-          console.error('Service Worker registration failed:', error);
-        });
+    if (isServiceWorkerSupported()) {
+      try {
+        navigator.serviceWorker.register('/sw.js')
+          .then((registration) => {
+            console.log('Service Worker registered successfully:', registration);
+            setServiceWorkerRegistration(registration);
+            serviceWorkerRef.current = registration.active || registration.installing || registration.waiting;
+            
+            // Listen for messages from service worker
+            navigator.serviceWorker.addEventListener('message', handleServiceWorkerMessage);
+          })
+          .catch((error) => {
+            console.warn('Service Worker registration failed (this is normal in development):', error.message);
+            // Don't throw error, just continue without service worker
+          });
+      } catch (error) {
+        console.warn('Service Worker not available in this environment');
+      }
     } else {
-      console.log('Service Worker not supported in this environment');
+      console.log('Service Worker not supported or not needed in this environment');
     }
     
     return () => {
-      if ('serviceWorker' in navigator && !window.location.hostname.includes('stackblitz') && !window.location.hostname.includes('webcontainer.io')) {
+      if (isServiceWorkerSupported()) {
         navigator.serviceWorker.removeEventListener('message', handleServiceWorkerMessage);
       }
     };
@@ -104,10 +139,15 @@ function App() {
   };
 
   const sendMessageToServiceWorker = (type: string, data?: any) => {
-    if (serviceWorkerRef.current) {
-      serviceWorkerRef.current.postMessage({ type, data });
+    try {
+      if (serviceWorkerRef.current) {
+        serviceWorkerRef.current.postMessage({ type, data });
+      }
+    } catch (error) {
+      console.warn('Failed to send message to service worker:', error);
     }
   };
+
   // Load settings from localStorage
   useEffect(() => {
     const savedSettings = localStorage.getItem('focusFlowSettings');
@@ -141,23 +181,27 @@ function App() {
     
     // Sync with service worker on load
     setTimeout(() => {
-      if (serviceWorkerRef.current) {
-        const channel = new MessageChannel();
-        channel.port1.onmessage = (event) => {
-          if (event.data.type === 'STATE_UPDATE') {
-            const swState = event.data.data;
-            if (swState.isActive) {
-              setIsActive(swState.isActive);
-              setTimeLeft(swState.timeLeft);
-              setIsBreak(swState.isBreak);
-              setTaskName(swState.taskName);
-              if (swState.startTime) {
-                setSessionStartTime(new Date(swState.startTime));
+      try {
+        if (serviceWorkerRef.current) {
+          const channel = new MessageChannel();
+          channel.port1.onmessage = (event) => {
+            if (event.data.type === 'STATE_UPDATE') {
+              const swState = event.data.data;
+              if (swState.isActive) {
+                setIsActive(swState.isActive);
+                setTimeLeft(swState.timeLeft);
+                setIsBreak(swState.isBreak);
+                setTaskName(swState.taskName);
+                if (swState.startTime) {
+                  setSessionStartTime(new Date(swState.startTime));
+                }
               }
             }
-          }
-        };
-        serviceWorkerRef.current.postMessage({ type: 'GET_STATE' }, [channel.port2]);
+          };
+          serviceWorkerRef.current.postMessage({ type: 'GET_STATE' }, [channel.port2]);
+        }
+      } catch (error) {
+        console.warn('Failed to sync with service worker:', error);
       }
     }, 1000);
   }, []);
@@ -193,7 +237,7 @@ function App() {
 
   // Timer logic
   useEffect(() => {
-    if (isActive && timeLeft > 0 && !serviceWorkerRef.current) {
+    if (isActive && timeLeft > 0 && (!serviceWorkerRef.current || !isServiceWorkerSupported())) {
       // Only run main thread timer if service worker is not available
       intervalRef.current = setInterval(() => {
         setTimeLeft(timeLeft => timeLeft - 1);
@@ -408,11 +452,15 @@ function App() {
   };
 
   const requestNotificationPermission = async () => {
-    if ('Notification' in window && Notification.permission === 'default') {
-      const permission = await Notification.requestPermission();
-      if (permission === 'granted') {
-        console.log('Notification permission granted');
+    try {
+      if ('Notification' in window && Notification.permission === 'default') {
+        const permission = await Notification.requestPermission();
+        if (permission === 'granted') {
+          console.log('Notification permission granted');
+        }
       }
+    } catch (error) {
+      console.warn('Notification permission request failed:', error);
     }
   };
 
